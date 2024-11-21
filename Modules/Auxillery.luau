@@ -1,5 +1,6 @@
 --!strict
 local Auxillery = {}
+local Debounces = {}
 
 local Services = {
 	PLRS = game:GetService("Players"),
@@ -45,7 +46,7 @@ end
 --[[
 	Returns the Distance between 2 BaseParts.
 ]]
-function Auxillery:GetDistance(Inst1 : BasePart, Inst2 : BasePart)
+function Auxillery:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number
 	Auxillery:AssertWarn(typeof(Inst1) == "Instance", "First given Argument isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Inst2) == "Instance", "Second given Argument isn't a Instance.")
 
@@ -53,6 +54,24 @@ function Auxillery:GetDistance(Inst1 : BasePart, Inst2 : BasePart)
 	Auxillery:AssertWarn(Inst2:IsA("BasePart"), "Second given Instance isn't a BasePart.")
 	
 	return (Inst1.Position - Inst2.Position).Magnitude
+end
+
+--[[
+	Creates a Debounce for the given instance.
+]]
+function Auxillery:Debounce(Inst : Instance, Duration : number) : boolean
+	Auxillery:AssertWarn(typeof(Inst) == "Instance", "Inst isn't a Instance.")
+	Auxillery:AssertWarn(typeof(Duration) == "number", "Duration isn't a number.")
+
+	if Debounces[Inst] then
+		return true
+	end
+	local function Remove()
+		Debounces[Inst] = nil
+	end
+	Debounces[Inst] = true
+	task.delay(Duration, Remove)
+	return false
 end
 
 --[[
@@ -86,7 +105,7 @@ end
 
 		Properties : A Dictionary which contains every Property and Value that should be set
 ]]
-function Auxillery:CreateInstance(Type : string, Properties : {any})
+function Auxillery:CreateInstance(Type : string, Properties : {any}) : Instance
 	Auxillery:AssertWarn(typeof(Type) == "string", "Type isn't a string.")
 
 	if Properties then
@@ -112,9 +131,8 @@ end
 
 --[[
 	Checks if a Instance has the given Property without errors.
-	Returns a boolean
 ]]
-function Auxillery:SaveCheckProperty(Inst : Instance, Property : string)
+function Auxillery:SaveCheckProperty(Inst : Instance, Property : string) : boolean
 	Auxillery:AssertWarn(typeof(Inst) == "Instance", "First given Argument isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Property) == "string", "Second given Argument isn't a string.")
 
