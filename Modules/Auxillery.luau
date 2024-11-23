@@ -2,6 +2,8 @@
 local Auxillery = {}
 local Debounces = {}
 
+local _BridgeNet = nil --Reference to BridgeNet if used. Use require() when referencing
+
 local Services = {
 	PLRS = game:GetService("Players"),
 	RS = game:GetService("ReplicatedStorage"),
@@ -16,23 +18,21 @@ local Services = {
 	TS = game:GetService("TweenService"),
 	IS = game:GetService("InsertService"),
 	MS = game:GetService("MarketplaceService"),
-	BN = require(script:WaitForChild("BridgeNet2", 1)),
-    HS = game:GetService("HttpService")
+	BN = _BridgeNet,
+	HS = game:GetService("HttpService")
 }
 
---Gets a table with <code>Service</code> shortcuts.
+--Gets a table with Service shortcuts.
 function Auxillery:GetServices()
 	return Services
 end
 
 --[[
-	Same functionality as <code>assert()</code>, but uses a warn instead in case you don't want the script to error.
+	Same functionality as assert(), but uses a warn instead in case you don't want the script to error.
 
-	Arguments:
+	Condition : If Condition is equal to false or nil the warn will trigger.
 
-		Condition : If Condition is equal to false or nil the warn will trigger.
-
-		Msg : The warn message that should be displayed.
+	>Msg : The warn message that should be displayed.
 ]]
 function Auxillery:AssertWarn(Condition : any, Msg : string)
 	if not Condition then
@@ -52,12 +52,12 @@ function Auxillery:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number
 
 	Auxillery:AssertWarn(Inst1:IsA("BasePart"), "First given Instance isn't a BasePart.")
 	Auxillery:AssertWarn(Inst2:IsA("BasePart"), "Second given Instance isn't a BasePart.")
-	
+
 	return (Inst1.Position - Inst2.Position).Magnitude
 end
 
 --[[
-	Creates a Debounce for the given instance.
+	Creates a Debounce (Cooldown) for the given instance.
 ]]
 function Auxillery:Debounce(Inst : Instance, Duration : number) : boolean
 	Auxillery:AssertWarn(typeof(Inst) == "Instance", "Inst isn't a Instance.")
@@ -77,13 +77,13 @@ end
 --[[
 	Returns a string descriping if the given Table is a Array or a Dictionary.
 ]]
-function Auxillery:GetTableType(Table : {})
+function Auxillery:GetTableType(Table : {any}) : string
 	Auxillery:AssertWarn(typeof(Table) == "table", "Given `table` isn't a table.")
 
 	local Result = ""
 	local Count = 0
 
-	for _ in Table do
+	for _, _ in ipairs(Table) do
 		Count += 1
 	end
 
@@ -99,13 +99,11 @@ end
 --[[
 	Creates a Instance.
 
-	Arguments:
+	Type : The ClassName of the Instance
 
-		Type : The ClassName of the Instance
-
-		Properties : A Dictionary which contains every Property and Value that should be set
+	Properties : A Dictionary which contains every Property and Value that should be set
 ]]
-function Auxillery:CreateInstance(Type : string, Properties : {any}) : Instance
+function Auxillery:CreateInstance(Type : string, Properties : {any}) : Instance | nil
 	Auxillery:AssertWarn(typeof(Type) == "string", "Type isn't a string.")
 
 	if Properties then
