@@ -83,7 +83,7 @@ function Auxillery:GetTableType(Table : {any}) : string
 	local Result = ""
 	local Count = 0
 
-	for _, _ in ipairs(Table) do
+	for _, _ in Table do
 		Count += 1
 	end
 
