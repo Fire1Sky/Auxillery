@@ -97,6 +97,24 @@ function Auxillery:GetTableType(Table : {any}) : string
 end
 
 --[[
+	Used to correctly clone tables.
+]]
+function Auxillery:DeepCopy(val : any) : any
+	local copy = nil
+    if typeof(val) == "table" then
+        copy = {}
+        for n, v in pairs(val) do
+            copy[n] = Auxillery:DeepCopy(v)
+        end
+        setmetatable(copy, Auxillery:DeepCopy(getmetatable(val)))
+    else
+        copy = val
+    end
+
+    return copy
+end
+
+--[[
 	Creates a Instance.
 
 	Type : The ClassName of the Instance
