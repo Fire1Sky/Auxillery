@@ -1,4 +1,8 @@
---!nonstrict
+--[[
+	Auxillery
+	Adds a bunch of functionality, allowing cleaner code.
+]]
+
 local Auxillery = {}
 local Debounces = {}
 
