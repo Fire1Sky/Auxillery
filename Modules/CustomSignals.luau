@@ -1,6 +1,7 @@
 --[[
 	Custom Signals
 	Allows you to create custom signal behaviour.
+	Dependencies: Auxillery
 ]]
 
 local Mods = game:GetService("ReplicatedStorage").Modules
@@ -24,20 +25,15 @@ export type Custom_Signal = {
 	RemoveDependency : (self : {}) -> nil
 }
 
-local function CheckProperty(Inst : Instance, Property : string)
-	local Property = Inst[Property]
-end
+local function GetNewSignal(Inst : Instance, Property : string) : Custom_Signal
+	Aux:AssertWarn(typeof(Inst) == "Instance", Inst.." isn't a Instance.")
+	Aux:AssertWarn(typeof(Property) == "string", Property.." isn't a string.")
 
-local function GetNewSignal(Inst : Instance, Property : string) --: Custom_Signal
-	local s = pcall(CheckProperty)
-	if not s then
-		warn("Property is invalid.")
-		return
-	end
+	Aux:AssertWarn(Aux:SaveCheckProperty(Inst, Property), Property.." isn't a valid Property of "..Inst)
 	local SavedInstance = Saved[Inst]
 	
 	local CustomSignal = {}
-	local Bind = Instance.new("BindableEvent")
+	local Bind = Aux:CreateInstance("BindableEvent")
 	
 	CustomSignal.Bind = Bind
 	CustomSignal.Dependencies = 1
