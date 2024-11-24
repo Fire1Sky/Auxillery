@@ -11,89 +11,89 @@ local Mods = script.Parent
 local Aux = require(Mods.Auxillery)
 
 local DefaultArgs = {
-    Priority = Enum.AnimationPriority.Action,
-    Speed = 1,
-    TimePosition = 0,
-    Looped = false
+	Priority = Enum.AnimationPriority.Action,
+	Speed = 1,
+	TimePosition = 0,
+	Looped = false
 }
 
 local function CreateAnimationRunner(AnimationController : Humanoid | AnimationController | Animator)
-    AnimationRunners[AnimationController] = {}
-    local AnimationRunner = AnimationRunners[AnimationController]
+	AnimationRunners[AnimationController] = {}
+	local AnimationRunner = AnimationRunners[AnimationController]
 
-    return AnimationRunner
+	return AnimationRunner
 end
 
 local function FindAnimationTrack(AnimationRunner : {any}, Animation : Animation | number)
-    if typeof(Animation) == "number" then
-        for i, v in pairs(AnimationRunner) do
-            if v.AnimationId == "rbxassetid://"..Animation then
-                return v, i
-            end
-        end
-    else
-        for i, v in pairs(AnimationRunner) do
-            if v.AnimationId == Animation.AnimationId then
-                return v, i
-            end
-        end
-    end
+	if typeof(Animation) == "number" then
+		for i, v in pairs(AnimationRunner) do
+			if v.AnimationId == "rbxassetid://"..Animation then
+				return v, i
+			end
+		end
+	else
+		for i, v in pairs(AnimationRunner) do
+			if v.AnimationId == Animation.AnimationId then
+				return v, i
+			end
+		end
+	end
 end
 
 function Animate:LoadAnimation(AnimationController : Humanoid | AnimationController | Animator, Animation : Animation | number, GivenArgs : {})
-    Aux:AssertWarn(typeof(AnimationController) == "Instance", AnimationController.." isn't a Instance.")
-    Aux:AssertWarn(AnimationController:IsA("Humanoid") or AnimationController:IsA("AnimationController") or AnimationController:IsA("Animator"), AnimationController.." isn't a valid Animation Controller.")
-    
-    Aux:AssertWarn((typeof(Animation) == "Instance" and Animation:IsA("Animation")) or typeof(Animation) == "number", Animation.." isn't a Animation or a number.")
+	Aux:AssertWarn(typeof(AnimationController) == "Instance", tostring(AnimationController).." isn't a Instance.")
+	Aux:AssertWarn(AnimationController:IsA("Humanoid") or AnimationController:IsA("AnimationController") or AnimationController:IsA("Animator"), tostring(AnimationController).." isn't a valid Animation Controller.")
 
-    local AnimationRunner = AnimationRunners[AnimationController]
+	Aux:AssertWarn((typeof(Animation) == "Instance" and Animation:IsA("Animation")) or typeof(Animation) == "number", tostring(Animation).." isn't a Animation or a number.")
 
-    if not AnimationRunner then
-        AnimationRunner = CreateAnimationRunner(AnimationController)
-    end
+	local AnimationRunner = AnimationRunners[AnimationController]
 
-    local Args = GivenArgs or DefaultArgs
-    for n, v in pairs(Args) do
-        Args[n] = v or DefaultArgs[n]
-    end
+	if not AnimationRunner then
+		AnimationRunner = CreateAnimationRunner(AnimationController)
+	end
 
-    local Track = FindAnimationTrack(AnimationRunner, Animation)
-    if Track then
-        Track.TimePosition = Args.TimePosition
-        Track.Priority = Args.Priority
-        Track.Looped = Args.Looped
-        Track:AdjustSpeed(Args.Speed)
-    else
-        if typeof(Animation) == "number" then
-           local AnimInstance = Aux:CreateInstance("Animation", {AnimationId = "rbxassetid://"..Animation})
-           Track = AnimationController:LoadAnimation(AnimInstance)
-           AnimInstance:Destroy()
-        else
-            Track = AnimationController:LoadAnimation(Animation)
-        end
-        Track.TimePosition = Args.TimePosition
-        Track.Priority = Args.Priority
-        Track.Looped = Args.Looped
-        Track:AdjustSpeed(Args.Speed)
-        table.insert(AnimationRunner, Track)
-    end
+	local Args = GivenArgs or DefaultArgs
+	for n, v in pairs(Args) do
+		Args[n] = v or DefaultArgs[n]
+	end
 
-    return Track
+	local Track = FindAnimationTrack(AnimationRunner, Animation)
+	if Track then
+		Track.TimePosition = Args.TimePosition
+		Track.Priority = Args.Priority
+		Track.Looped = Args.Looped
+		Track:AdjustSpeed(Args.Speed)
+	else
+		if typeof(Animation) == "number" then
+			local AnimInstance = Aux:CreateInstance("Animation", {AnimationId = "rbxassetid://"..Animation})
+			Track = AnimationController:LoadAnimation(AnimInstance)
+			AnimInstance:Destroy()
+		else
+			Track = AnimationController:LoadAnimation(Animation)
+		end
+		Track.TimePosition = Args.TimePosition
+		Track.Priority = Args.Priority
+		Track.Looped = Args.Looped
+		Track:AdjustSpeed(Args.Speed)
+		table.insert(AnimationRunner, Track)
+	end
+
+	return Track
 end
 
 function Animate:UnloadAnimation(AnimationController : Humanoid | AnimationController | Animator, Animation : Animation | number)
-    Aux:AssertWarn(typeof(AnimationController) == "Instance", AnimationController.." isn't a Instance.")
-    Aux:AssertWarn(AnimationController:IsA("Humanoid") or AnimationController:IsA("AnimationController") or AnimationController:IsA("Animator"), AnimationController.." isn't a valid Animation Controller.")
-    
-    Aux:AssertWarn((typeof(Animation) == "Instance" and Animation:IsA("Animation")) or typeof(Animation) == "number", Animation.." isn't a Animation or a number.")
+	Aux:AssertWarn(typeof(AnimationController) == "Instance", tostring(AnimationController).." isn't a Instance.")
+	Aux:AssertWarn(AnimationController:IsA("Humanoid") or AnimationController:IsA("AnimationController") or AnimationController:IsA("Animator"), tostring(AnimationController).." isn't a valid Animation Controller.")
 
-    local AnimationRunner = AnimationRunners[AnimationController]
-    Aux:AssertWarn(AnimationRunner, "AnimationController has not been used.")
-    
-    local Track, Index = FindAnimationTrack(AnimationRunner, Animation)
-    Aux:AssertWarn(Track, "Animation doesn't exist.")
-    table.remove(AnimationRunner, Index)
-    Track:Destroy()
+	Aux:AssertWarn((typeof(Animation) == "Instance" and Animation:IsA("Animation")) or typeof(Animation) == "number", tostring(Animation).." isn't a Animation or a number.")
+
+	local AnimationRunner = AnimationRunners[AnimationController]
+	Aux:AssertWarn(AnimationRunner, "AnimationController has not been used.")
+
+	local Track, Index = FindAnimationTrack(AnimationRunner, Animation)
+	Aux:AssertWarn(Track, "Animation doesn't exist.")
+	table.remove(AnimationRunner, Index)
+	Track:Destroy()
 end
 
 return Animate

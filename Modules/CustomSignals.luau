@@ -26,22 +26,22 @@ export type Custom_Signal = {
 }
 
 local function GetNewSignal(Inst : Instance, Property : string) : Custom_Signal
-	Aux:AssertWarn(typeof(Inst) == "Instance", Inst.." isn't a Instance.")
-	Aux:AssertWarn(typeof(Property) == "string", Property.." isn't a string.")
+	Aux:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
+	Aux:AssertWarn(typeof(Property) == "string", tostring(Property).." isn't a string.")
 
-	Aux:AssertWarn(Aux:SaveCheckProperty(Inst, Property), Property.." isn't a valid Property of "..Inst)
+	Aux:AssertWarn(Aux:SaveCheckProperty(Inst, Property), tostring(Property).." isn't a valid Property of "..tostring(Inst))
 	local SavedInstance = Saved[Inst]
-	
+
 	local CustomSignal = {}
 	local Bind = Aux:CreateInstance("BindableEvent")
-	
+
 	CustomSignal.Bind = Bind
 	CustomSignal.Dependencies = 1
 	CustomSignal.Property = Property
 	CustomSignal.Instance = Inst
 	CustomSignal.Previous = Inst[Property]
 	setmetatable(CustomSignal, Class)
-	
+
 	local function Default()
 		if CustomSignal.Previous ~= Inst[Property] then
 			Bind:Fire(Inst[Property])
@@ -54,9 +54,9 @@ local function GetNewSignal(Inst : Instance, Property : string) : Custom_Signal
 		Saved[Inst] = {}
 		SavedInstance = Saved[Inst]
 	end
-	
+
 	SavedInstance[Property] = CustomSignal
-	
+
 	return CustomSignal
 end
 
@@ -66,7 +66,7 @@ function Class:AlterHeartbeat(NewFunction : () -> nil)
 	if self.Heartbeat then
 		self.Heartbeat:Disconnect()
 	end
-	
+
 	local NewHeartbeat = Services.RNS.Heartbeat:Connect(NewFunction)
 	self.Heartbeat = NewHeartbeat
 end
@@ -74,7 +74,7 @@ end
 --Removes a <code>Dependency</code> from the Signal. If 0 scripts depend on the signal, it gets destroyed.
 function Class:RemoveDependency()
 	self.Dependencies -= 1
-	
+
 	if self.Dependencies == 0 then
 		setmetatable(self, nil)
 		self.Heartbeat:Disconnect()
@@ -82,7 +82,7 @@ function Class:RemoveDependency()
 		self.Dependencies = nil
 		self.Bind:Destroy()
 		self.Bind = nil
-        table.freeze(self)
+		table.freeze(self)
 		Saved[self.Instance][self.Property] = nil
 	end
 end
@@ -90,10 +90,10 @@ end
 --Returns the <code>CustomSignal</code> of the Instance's Property. If nonexistent, it'll create a new one.
 function CustomSignals:Get(Inst : Instance, Property : string) : Custom_Signal
 	local SavedInstance = Saved[Inst]
-	
+
 	if SavedInstance then
 		local SavedPropertySignal = SavedInstance[Property]
-		
+
 		if SavedPropertySignal then
 			SavedPropertySignal.Dependencies += 1
 			return SavedPropertySignal

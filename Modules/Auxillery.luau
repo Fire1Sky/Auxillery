@@ -58,18 +58,18 @@ end
 
 --Returns the Distance between 2 BaseParts.
 function Auxillery:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number
-	Auxillery:AssertWarn(typeof(Inst1) == "Instance", Inst1.." isn't a Instance.")
-	Auxillery:AssertWarn(typeof(Inst2) == "Instance", Inst2.." isn't a Instance.")
+	Auxillery:AssertWarn(typeof(Inst1) == "Instance", tostring(Inst1).." isn't a Instance.")
+	Auxillery:AssertWarn(typeof(Inst2) == "Instance", tostring(Inst2).." isn't a Instance.")
 
-	Auxillery:AssertWarn(Inst1:IsA("BasePart"), Inst1.." isn't a BasePart.")
-	Auxillery:AssertWarn(Inst2:IsA("BasePart"), Inst2.." isn't a BasePart.")
+	Auxillery:AssertWarn(Inst1:IsA("BasePart"), tostring(Inst1).." isn't a BasePart.")
+	Auxillery:AssertWarn(Inst2:IsA("BasePart"), tostring(Inst2).." isn't a BasePart.")
 
 	return (Inst1.Position - Inst2.Position).Magnitude
 end
 
 --Creates a Debounce (Cooldown) for the given instance.
 function Auxillery:Debounce(Inst : Instance, Duration : number) : boolean
-	Auxillery:AssertWarn(typeof(Inst) == "Instance", Inst.." isn't a Instance.")
+	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Duration) == "number", Duration.." isn't a number.")
 
 	if Debounces[Inst] then
@@ -85,7 +85,7 @@ end
 
 --Returns a string descriping if the given Table is a Array or a Dictionary.
 function Auxillery:GetTableType(Table : {any}) : string
-	Auxillery:AssertWarn(typeof(Table) == "table", Table.." isn't a table.")
+	Auxillery:AssertWarn(typeof(Table) == "table", tostring(Table).." isn't a table.")
 
 	local Result = ""
 	local Count = 0
@@ -106,17 +106,17 @@ end
 --Used to correctly clone tables.
 function Auxillery:DeepCopy(val : any) : any
 	local copy = nil
-    if typeof(val) == "table" then
-        copy = {}
-        for n, v in pairs(val) do
-            copy[n] = Auxillery:DeepCopy(v)
-        end
-        setmetatable(copy, Auxillery:DeepCopy(getmetatable(val)))
-    else
-        copy = val
-    end
+	if typeof(val) == "table" then
+		copy = {}
+		for n, v in pairs(val) do
+			copy[n] = Auxillery:DeepCopy(v)
+		end
+		setmetatable(copy, Auxillery:DeepCopy(getmetatable(val)))
+	else
+		copy = val
+	end
 
-    return copy
+	return copy
 end
 
 --[[
@@ -130,7 +130,7 @@ function Auxillery:CreateInstance(Type : string, Properties : {any}) : Instance 
 	Auxillery:AssertWarn(typeof(Type) == "string", Type.." isn't a string.")
 
 	if Properties then
-		Auxillery:AssertWarn(typeof(Properties) == "table", Properties.." is not a table.")
+		Auxillery:AssertWarn(typeof(Properties) == "table", tostring(Properties).." is not a table.")
 		Auxillery:AssertWarn(Auxillery:GetTableType(Properties) == "Dictionary", "Properties table must be a Dictionary.")
 	end
 
@@ -152,7 +152,7 @@ end
 
 --Checks if a Instance has the given Property without errors.
 function Auxillery:SaveCheckProperty(Inst : Instance, Property : string) : boolean
-	Auxillery:AssertWarn(typeof(Inst) == "Instance", Inst.." isn't a Instance.")
+	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Property) == "string", Property.." isn't a string.")
 
 	local function Check()
