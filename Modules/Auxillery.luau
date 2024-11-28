@@ -9,7 +9,7 @@ local Debounces = {}
 local _BridgeNet = nil --Reference to BridgeNet if used. Use require() when referencing
 
 local Services = {
-	PLRS = game:GetService("Players"),
+	P = game:GetService("Players"),
 	RS = game:GetService("ReplicatedStorage"),
 	RNS = game:GetService("RunService"),
 	RF = game:GetService("ReplicatedFirst"),
@@ -22,7 +22,10 @@ local Services = {
 	TS = game:GetService("TweenService"),
 	IS = game:GetService("InsertService"),
 	MS = game:GetService("MarketplaceService"),
-	HS = game:GetService("HttpService")
+	HS = game:GetService("HttpService"),
+	PS = game:GetService("PathfindingService"),
+	PHYS = game:GetService("PhysicsService"),
+	DE = game:GetService("Debris")
 }
 
 if _BridgeNet then
