@@ -70,7 +70,7 @@ function Auxillery:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number
 	return (Inst1.Position - Inst2.Position).Magnitude
 end
 
---Creates a Debounce (Cooldown) for the given instance.
+--Creates a Debounce (Cooldown) for the given Instance. Returns true if it's still on cooldown
 function Auxillery:Debounce(Inst : Instance, Duration : number) : boolean
 	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Duration) == "number", Duration.." isn't a number.")

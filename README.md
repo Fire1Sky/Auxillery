@@ -1,6 +1,6 @@
 # Modules
 
-This repository contains Roblox modules that I made and personally use.
+This repository contains Roblox modules that I made and use.
 I made them Open-Source in case someone finds a use for them.
 
 ## Contents
@@ -15,5 +15,3 @@ Now you may be asking why if there's Instance:GetPropertyChangedSignal(). That i
 
 ### Animate
 Recycles already loaded Animations instead of reloading the animation everytime.
-
-> if there's any issues with the modules, report them to me on Discord (fire_sky.)

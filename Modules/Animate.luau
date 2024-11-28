@@ -33,7 +33,7 @@ local function FindAnimationTrack(AnimationRunner : {any}, Animation : Animation
 		end
 	else
 		for i, v in pairs(AnimationRunner) do
-			if v.AnimationId == Animation.AnimationId then
+			if v.Animation.AnimationId == Animation.AnimationId then
 				return v, i
 			end
 		end
@@ -53,16 +53,13 @@ function Animate:LoadAnimation(AnimationController : Humanoid | AnimationControl
 	end
 
 	local Args = GivenArgs or DefaultArgs
-	for n, v in pairs(Args) do
-		Args[n] = v or DefaultArgs[n]
-	end
 
 	local Track = FindAnimationTrack(AnimationRunner, Animation)
 	if Track then
-		Track.TimePosition = Args.TimePosition
-		Track.Priority = Args.Priority
-		Track.Looped = Args.Looped
-		Track:AdjustSpeed(Args.Speed)
+		Track.TimePosition = Args.TimePosition or DefaultArgs.TimePosition
+		Track.Priority = Args.Priority or DefaultArgs.Priority
+		Track.Looped = Args.Looped or DefaultArgs.Looped
+		Track:AdjustSpeed(Args.Speed or DefaultArgs.Speed)
 	else
 		if typeof(Animation) == "number" then
 			local AnimInstance = Aux:CreateInstance("Animation", {AnimationId = "rbxassetid://"..Animation})
@@ -71,10 +68,11 @@ function Animate:LoadAnimation(AnimationController : Humanoid | AnimationControl
 		else
 			Track = AnimationController:LoadAnimation(Animation)
 		end
-		Track.TimePosition = Args.TimePosition
-		Track.Priority = Args.Priority
-		Track.Looped = Args.Looped
-		Track:AdjustSpeed(Args.Speed)
+
+		Track.TimePosition = Args.TimePosition or DefaultArgs.TimePosition
+		Track.Priority = Args.Priority or DefaultArgs.Priority
+		Track.Looped = Args.Looped or DefaultArgs.Looped
+		Track:AdjustSpeed(Args.Speed or DefaultArgs.Speed)
 		table.insert(AnimationRunner, Track)
 	end
 
