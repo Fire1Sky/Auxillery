@@ -78,10 +78,8 @@ function Class:RemoveDependency()
 	if self.Dependencies == 0 then
 		setmetatable(self, nil)
 		self.Heartbeat:Disconnect()
-		self.Heartbeat = nil
-		self.Dependencies = nil
 		self.Bind:Destroy()
-		self.Bind = nil
+		table.clear(self)
 		table.freeze(self)
 		Saved[self.Instance][self.Property] = nil
 	end
