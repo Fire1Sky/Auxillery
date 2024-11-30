@@ -37,6 +37,63 @@ function Auxillery:GetServices()
 	return Services
 end
 
+--[[
+	Awaits and returns a value from the given table.
+
+	tab: the table to look into.
+
+	key: the key that will be waited for.
+
+	timeout: optional argument which stops yielding the code after runtime exceeds the timeout value.
+]]
+function Auxillery:Await(tab : {}, key : any, timeout : number) : any
+	Auxillery:AssertWarn(typeof(tab) == "table", tostring(tab).." isn't a table.")
+	Auxillery:AssertWarn(key, "key is nil.")
+
+	if tab[key] then
+		return tab[key]
+	else
+		local runtime = 0
+		if timeout and typeof(timeout) == "number" then
+			repeat
+				runtime += 0.015
+				if runtime >= timeout then
+					break
+				end
+				task.wait()
+			until tab[key]
+		else
+			local printed = false
+			repeat
+				if Auxillery:NumberInRange(5, runtime, 0.015) and not printed then
+					printed = true
+					warn("Infinite yield possible with table "..tostring(tab).." and key "..tostring(key))
+				end
+				runtime += 0.015
+				task.wait()
+			until tab[key]
+
+			return tab[key]
+		end
+	end
+end
+
+--[[
+	Checks if TargetNumber is withing a specified MaxDistance from the ReferenceNumber.
+	
+	Returns a boolean indicating if the TargetNumber is within the range of the ReferenceNumber and the actual Distance.
+]]
+function Auxillery:NumberInRange(ReferenceNumber : number, TargetNumber : number, MaxDistance : number) : boolean & number
+	Auxillery:AssertWarn(typeof(ReferenceNumber) == "number", tostring(ReferenceNumber).." isn't a number.")
+	Auxillery:AssertWarn(typeof(TargetNumber) == "number", tostring(TargetNumber).." isn't a number.")
+	Auxillery:AssertWarn(typeof(MaxDistance) == "number", tostring(MaxDistance).." isn't a number.")
+
+	local dist = math.abs(ReferenceNumber - TargetNumber)
+	local iswithinRange = dist < MaxDistance
+
+	return iswithinRange, dist
+end
+
 --Returns a random ID (requires HttpService to be enabled)
 function Auxillery:GenerateRandomId() : string
 	Auxillery:AssertWarn(Services.HS.HttpEnabled, "Enable HttpService first before using this function.")
@@ -156,7 +213,7 @@ end
 --Checks if a Instance has the given Property without errors.
 function Auxillery:SaveCheckProperty(Inst : Instance, Property : string) : boolean
 	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
-	Auxillery:AssertWarn(typeof(Property) == "string", Property.." isn't a string.")
+	Auxillery:AssertWarn(typeof(Property) == "string", tostring(Property).." isn't a string.")
 
 	local function Check()
 		local P = Inst[Property]
