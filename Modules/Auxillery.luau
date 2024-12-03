@@ -1,9 +1,13 @@
 --[[
 	Auxillery
-	Adds a bunch of functionality, allowing cleaner code.
+	Contains a bunch of functionality, allowing cleaner code.
 ]]
 
-local Auxillery = {}
+local Auxillery = {
+	InstanceFunctions = {},
+	TableFunctions = {}
+}
+
 local Debounces = {}
 
 local _BridgeNet = nil --Reference to BridgeNet if used. Use require() when referencing
@@ -46,7 +50,7 @@ end
 
 	timeout: optional argument which stops yielding the code after runtime exceeds the timeout value.
 ]]
-function Auxillery:Await(tab : {}, key : any, timeout : number) : any
+function Auxillery.TableFunctions:Await(tab : {}, key : any, timeout : number) : any
 	Auxillery:AssertWarn(typeof(tab) == "table", tostring(tab).." isn't a table.")
 	Auxillery:AssertWarn(key, "key is nil.")
 
@@ -62,6 +66,8 @@ function Auxillery:Await(tab : {}, key : any, timeout : number) : any
 				end
 				task.wait()
 			until tab[key]
+
+			return
 		else
 			local printed = false
 			repeat
@@ -103,9 +109,9 @@ end
 --[[
 	Same functionality as assert(), but uses a warn instead.
 
-	Condition : If Condition is equal to false or nil the warn will trigger.
+	Condition: If Condition is equal to false or nil the warn will trigger.
 
-	Msg : The warn message that should be displayed.
+	Msg: The warn message that should be displayed.
 ]]
 function Auxillery:AssertWarn(Condition : any, Msg : string)
 	if not Condition then
@@ -117,7 +123,7 @@ function Auxillery:AssertWarn(Condition : any, Msg : string)
 end
 
 --Returns the Distance between 2 BaseParts.
-function Auxillery:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number
+function Auxillery.InstanceFunctions:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number
 	Auxillery:AssertWarn(typeof(Inst1) == "Instance", tostring(Inst1).." isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Inst2) == "Instance", tostring(Inst2).." isn't a Instance.")
 
@@ -128,7 +134,7 @@ function Auxillery:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number
 end
 
 --Creates a Debounce (Cooldown) for the given Instance. Returns true if it's still on cooldown
-function Auxillery:Debounce(Inst : Instance, Duration : number) : boolean
+function Auxillery.InstanceFunctions:Debounce(Inst : Instance, Duration : number) : boolean
 	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Duration) == "number", Duration.." isn't a number.")
 
@@ -144,7 +150,7 @@ function Auxillery:Debounce(Inst : Instance, Duration : number) : boolean
 end
 
 --Returns a string descriping if the given Table is a Array or a Dictionary.
-function Auxillery:GetTableType(Table : {any}) : string
+function Auxillery.TableFunctions:GetTableType(Table : {any}) : string
 	Auxillery:AssertWarn(typeof(Table) == "table", tostring(Table).." isn't a table.")
 
 	local Result = ""
@@ -164,14 +170,14 @@ function Auxillery:GetTableType(Table : {any}) : string
 end
 
 --Used to correctly clone tables.
-function Auxillery:DeepCopy(val : any) : any
+function Auxillery.TableFunctions:DeepCopy(val : any) : any
 	local copy = nil
 	if typeof(val) == "table" then
 		copy = {}
 		for n, v in pairs(val) do
-			copy[n] = Auxillery:DeepCopy(v)
+			copy[n] = Auxillery.TableFunctions:DeepCopy(v)
 		end
-		setmetatable(copy, Auxillery:DeepCopy(getmetatable(val)))
+		setmetatable(copy, Auxillery.TableFunctions:DeepCopy(getmetatable(val)))
 	else
 		copy = val
 	end
@@ -182,16 +188,16 @@ end
 --[[
 	Creates a Instance.
 
-	Type : The ClassName of the Instance
+	Type: The ClassName of the Instance
 
-	Properties : A Dictionary which contains every Property and Value that should be set
+	Properties: A Dictionary which contains every Property and Value that should be set
 ]]
-function Auxillery:CreateInstance(Type : string, Properties : {any}) : Instance | nil
+function Auxillery.InstanceFunctions:CreateInstance(Type : string, Properties : {any}) : Instance | nil
 	Auxillery:AssertWarn(typeof(Type) == "string", Type.." isn't a string.")
 
 	if Properties then
 		Auxillery:AssertWarn(typeof(Properties) == "table", tostring(Properties).." is not a table.")
-		Auxillery:AssertWarn(Auxillery:GetTableType(Properties) == "Dictionary", "Properties table must be a Dictionary.")
+		Auxillery:AssertWarn(Auxillery.TableFunctions:GetTableType(Properties) == "Dictionary", "Properties table must be a Dictionary.")
 	end
 
 	local NewInstance = nil
@@ -199,7 +205,7 @@ function Auxillery:CreateInstance(Type : string, Properties : {any}) : Instance 
 		NewInstance = Instance.new(Type)
 		if Properties then
 			for Property, Value in pairs(Properties) do
-				if Auxillery:SaveCheckProperty(NewInstance, Property) then
+				if Auxillery.InstanceFunctions:SaveCheckProperty(NewInstance, Property) then
 					NewInstance[Property] = Value
 				end
 			end
@@ -211,7 +217,7 @@ function Auxillery:CreateInstance(Type : string, Properties : {any}) : Instance 
 end
 
 --Checks if a Instance has the given Property without errors.
-function Auxillery:SaveCheckProperty(Inst : Instance, Property : string) : boolean
+function Auxillery.InstanceFunctions:SaveCheckProperty(Inst : Instance, Property : string) : boolean
 	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Property) == "string", tostring(Property).." isn't a string.")
 
