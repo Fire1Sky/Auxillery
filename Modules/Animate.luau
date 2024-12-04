@@ -1,6 +1,6 @@
 --[[
     Animate
-    Recyles Animations for replaying purposes
+    Recyles Animations to prevent reloading animations.
     Dependencies: Auxillery
 ]]
 
