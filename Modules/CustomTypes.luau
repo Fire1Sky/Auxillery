@@ -1,3 +1,4 @@
+--!strict
 --[[
     CustomTypes
     Allows the creation of custom types (just like type Name = {any})
@@ -35,6 +36,7 @@ function TypeClass:Compare(TableToCompare : {}, Orig : {}?) : boolean
             end
         else
             local orval = self[n]
+
             --this would set success to false if the given table having values inside which dont belong to the type. useful for similar types
             if not orval then
                 success = false
@@ -67,7 +69,7 @@ local function new(Name, originaltable : {any})
     return self
 end
 
-function CustomTypes:GetCustomType(TypeName, TypeData : nil | {}) : table
+function CustomTypes:GetCustomType(TypeName, TypeData : {any}) : {}
     Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
 
     if CustomTypes[TypeName] then
