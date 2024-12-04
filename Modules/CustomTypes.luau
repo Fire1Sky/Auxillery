@@ -28,6 +28,9 @@ function TypeClass:Compare(TableToCompare : {}, Orig : {}?) : boolean
                 break
             end
             if not ((typeof(v) == orval) or (string.find(orval, "?"))) then
+                if typeof(orval) == "table" and orval.__optional then
+					continue
+				end
                 success = false
                 break
             end
@@ -45,6 +48,9 @@ function TypeClass:Compare(TableToCompare : {}, Orig : {}?) : boolean
 
             --in case the value is entirely optional (indicated with the "?"), we should keep success at true
             if not ((typeof(v) == orval) or (string.find(orval, "?"))) then
+                if typeof(orval) == "table" and orval.__optional then
+					continue
+				end
                 success = false
                 break
             end
