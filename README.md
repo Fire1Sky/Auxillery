@@ -1,17 +1,18 @@
 # Modules
 
-This repository contains Roblox modules that I made and use.
-I made them Open-Source in case someone finds a use for them.
+This repository contains a bunch of modules I made and think you should use. Their uses vary a lot, as they are based on my needs. Although I'm sure a lot of people will find uses for these.
+
+>[!IMPORTANT]
+>There's a documentation which you can read [here](https://github.com/Fire1Sky/Modules/blob/main/Documentation.md)
 
 ## Contents
-As of now, there's currently following modules:
+I listed summarizations of every module here. For further explanation, check out the documentation.
 
 ### Auxillery
 Contains basic functions such as Instance Debounces or clean Instance Creation. Overall allows way cleaner code to be made.
 
 ### CustomSignals
 Allows you to create custom signals (by default checking Property changes using Heartbeat)
-Now you may be asking why if there's Instance:GetPropertyChangedSignal(). That is true, but some properties such as CFrames do not work with this. Which is the primary reason i made the module.
 
 ### Animate
 Recycles already loaded Animations instead of reloading the animation everytime.
