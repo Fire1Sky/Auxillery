@@ -3,7 +3,7 @@
 This repository contains a bunch of modules I made and think you should use. Their uses vary a lot, as they are based on my needs. Although I'm sure a lot of people will find uses for these.
 
 >[!IMPORTANT]
->There's a documentation which you can read (here)[https://github.com/Fire1Sky/Modules/blob/main/Documentation.md]
+>There's a documentation which you can read [here](https://github.com/Fire1Sky/Modules/blob/main/Documentation.md)
 
 ## Contents
 I listed summarizations of every module here. For further explanation, check out the documentation.
