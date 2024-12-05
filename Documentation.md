@@ -5,6 +5,10 @@ This module's purpose is to store and recycle AnimationTracks loaded through thi
 
 Thats useful because if you call LoadAnimation() on an AnimationController itself, it'll give you a fresh AnimationTrack. Doesn't matter if you loaded the same one beforehand, it always reloads. To prevent reloading (and with that, delays inbetween already played animations), you can use this method instead. It'll return the already used AnimationTrack which completely gets rid of that delay.
 
+|Dependencies|
+|---|
+|[Auxillery](https://github.com/Fire1Sky/Modules/blob/main/Modules/Auxillery.luau)|
+
 ### <ins>Animate:LoadAnimation()</ins>
 This is used to load Animations on a AnimationController. The AnimationTrack will then be saved within the module.
 
@@ -53,7 +57,33 @@ end
 ```
 In the sample, we called the loadanimation method 10 times. Normally, this would load the animation 10 times. but instead, we only loaded it once and replayed it 9 times by using this specific method.
 
-### <ins>Animate:UnloadAnimation()</ins>
+### Animate:UnloadAnimation()
+In case you want to remove a AnimationTrack from the Cache, you use this method.
+
+Takes *2* Arguments:
+
+-**AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to remove the animation from.
+
+-**Animation** (Animation, number): The Animation to unload.
+
+Code Sample:
+```lua
+local Animate = require(game.ReplicatedStorage.Modules.Animate)
+local Character = workspace.CharacterXYZ
+
+local AnimationController = Character.Humanoid.Animator
+local Animation = Instance.new("Animation")
+Animation.AnimationId = "rbxassetid://987654321"
+
+for i = 1, 5 do
+    local Track = Animate:LoadAnimation(AnimationController, Animation, {Priority = Enum.AnimationPriority.Action})
+    Track:Play()
+    Track.Ended:Wait()
+end
+
+--After you're done, you can just unload the Animation.
+Animate:UnloadAnimation(AnimationController, Animation)
+```
 
 ## Auxillery
 
