@@ -15,11 +15,11 @@ This is used to load Animations on a AnimationController. The AnimationTrack wil
 
 Takes *3* Arguments:
 
--**AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to load the animation upon.
+- **AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to load the animation upon.
 
--**Animation** (Animation, number): The Animation to load.
+- **Animation** (Animation, number): The Animation to load.
 
--**GivenArgs** (table?): The Arguments to use on the *AnimationTrack*. This table may take up to 4 Values:
+- **GivenArgs** (table?): The Arguments to use on the *AnimationTrack*. This table may take up to 4 Values:
 
 |Key|Type|Standard|Description|
 |---|---|---|---|
@@ -66,9 +66,9 @@ In case you want to remove a AnimationTrack from the Cache, you use this method.
 
 Takes *2* Arguments:
 
--**AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to remove the animation from.
+- **AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to remove the animation from.
 
--**Animation** (Animation, number): The Animation to unload.
+- **Animation** (Animation, number): The Animation to unload.
 
 
 Code Sample:
@@ -104,9 +104,9 @@ Replicates the behaviour of assert(), but uses warn() instead to prevent errors.
 
 Takes *2* Arguments:
 
--**Condition** (boolean): The condition to check.
+- **Condition** (boolean): The condition to check.
 
---**Msg** (string?): The message to display.
+- **Msg** (string?): The message to display.
 
 
 If the condition given equals false or nil, the script will halt and the given msg will be printed.
@@ -136,11 +136,11 @@ This method is used to check the distance between 2 numbers.
 
 Takes *3* Arguments:
 
--**ReferenceNumber** (number): The base number.
+- **ReferenceNumber** (number): The base number.
 
--**TargetNumber** (number): The number to check the distance from the ReferenceNumber to the TargetNumber.
+- **TargetNumber** (number): The number to check the distance from the ReferenceNumber to the TargetNumber.
 
--**MaxDistance** (number): The maximal range between ReferenceNumber and TargetNumber which decides if the boolean is true or false.
+- **MaxDistance** (number): The maximal range between ReferenceNumber and TargetNumber which decides if the boolean is true or false.
 
 
 Returns a boolean which indicates whether or not the TargetNumber is within the ReferenceNumber, and the distance.
@@ -167,7 +167,7 @@ Using table.clone() doesn't truly create a new independant table with the same v
 
 Takes *1* Argument:
 
--**val** (table): The table to copy
+- **val** (table): The table to copy
 
 
 Returns the copied table.
@@ -180,7 +180,7 @@ Tables come in 2 types: Arrays, and Dictionaries. This method indicates which on
 
 Takes *1* Argument:
 
--**Table** (table): The table to check
+- **Table** (table): The table to check
 
 
 Returns a string indicating the type of the table
