@@ -12,6 +12,7 @@ Thats useful because if you call LoadAnimation() on an AnimationController itsel
 ### Animate:LoadAnimation()
 This is used to load Animations on a AnimationController. The AnimationTrack will then be saved within the module.
 
+
 Takes *3* Arguments:
 
 -**AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to load the animation upon.
@@ -30,7 +31,9 @@ Takes *3* Arguments:
 > [!TIP]
 > The GivenArgs Argument is entirely optional.
 
+
 The Method returns the AnimationTrack.
+
 
 Code Sample:
 ```lua
@@ -55,6 +58,7 @@ for i = 1, 5 do
     Track.Ended:Wait()
 end
 ```
+
 In the sample, we called the loadanimation method 10 times. Normally, this would load the animation 10 times. but instead, we only loaded it once and replayed it 9 times by using this specific method.
 
 ### Animate:UnloadAnimation()
@@ -65,6 +69,7 @@ Takes *2* Arguments:
 -**AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to remove the animation from.
 
 -**Animation** (Animation, number): The Animation to unload.
+
 
 Code Sample:
 ```lua
@@ -92,8 +97,10 @@ The purpose of this module is to make writing code easier. It contains functions
 Instead of defining all services needed repetitively, you can use this method to get a table with services that are commonly used. You can edit it to your needs.
 
 I added a custom variable for bridgenet2, since its a direct upgrade to remotes. you may keep it at nil if unused.
+
 ### Auxillery:AssertWarn()
 Replicates the behaviour of assert(), but uses warn() instead to prevent errors.
+
 
 Takes *2* Arguments:
 
@@ -101,7 +108,9 @@ Takes *2* Arguments:
 
 --**Msg** (string?): The message to display.
 
+
 If the condition given equals false or nil, the script will halt and the given msg will be printed.
+
 
 Code Sample:
 ```lua
@@ -124,6 +133,7 @@ Returns a string if HttpService is enabled, else it'll return nil.
 ### Auxillery:NumberInRange()
 This method is used to check the distance between 2 numbers.
 
+
 Takes *3* Arguments:
 
 -**ReferenceNumber** (number): The base number.
@@ -132,7 +142,9 @@ Takes *3* Arguments:
 
 -**MaxDistance** (number): The maximal range between ReferenceNumber and TargetNumber which decides if the boolean is true or false.
 
+
 Returns a boolean which indicates whether or not the TargetNumber is within the ReferenceNumber, and the distance.
+
 
 Code Sample:
 ```lua
@@ -147,6 +159,9 @@ print(Distance) --Output: 10
 ### Auxillery.TableFunctions
 This table stores functions only relevant to tables.
 
+
+
+
 #### DeepCopy()
 Using table.clone() doesn't truly create a new independant table with the same values. Because of that, there's now a DeepCopy method. It also returns a copy of the table, but fully independant.
 
@@ -154,7 +169,11 @@ Takes *1* Argument:
 
 -**val** (table): The table to copy
 
+
 Returns the copied table.
+
+
+
 
 #### GetTableType()
 Tables come in 2 types: Arrays, and Dictionaries. This method indicates which one of the 2 the table is.
@@ -163,7 +182,10 @@ Takes *1* Argument:
 
 -**Table** (table): The table to check
 
+
 Returns a string indicating the type of the table
+
+
 
 Code Sample:
 ```lua
