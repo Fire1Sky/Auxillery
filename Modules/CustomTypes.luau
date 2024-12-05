@@ -1,12 +1,12 @@
 --!strict
 --[[
     CustomTypes
-    Allows the creation of custom types (just like type Name = {any})
+    Allows the creation of custom types.
     Dependencies: Auxillery
 ]]
 
 local CustomTypes = {
-    Types = {}
+	Types = {}
 }
 
 local Mods = game.ReplicatedStorage:WaitForChild("Modules")
@@ -15,76 +15,77 @@ local Aux = require(Mods.Auxillery)
 local TypeClass = {}
 TypeClass.__index = TypeClass
 
+export type Type = {
+	Compare : (self : {any}, TableToCompare : {any}) -> boolean
+}
+
 --Checks if the given table is this specific type.
 function TypeClass:Compare(TableToCompare : {}, Orig : {}?) : boolean
-    Aux:AssertWarn(typeof(TableToCompare) == "table", tostring(TableToCompare).." isn't a table.")
-    local success = true
+	Aux:AssertWarn(typeof(TableToCompare) == "table", tostring(TableToCompare).." isn't a table.")
+	local success = true
 
-    for n, v in pairs(TableToCompare) do
-        if Orig then
-            local orval = Orig[n]
-            if not orval then
-                success = false
-                break
-            end
-            if not ((typeof(v) == orval) or (string.find(orval, "?"))) then
-                if typeof(orval) == "table" and orval.__optional then
+	for n, v in pairs(TableToCompare) do
+		if Orig then
+			local CorrelatingTypeValue = Orig[n]
+			
+			if not ((typeof(v) == CorrelatingTypeValue) or (string.find(CorrelatingTypeValue, "?"))) then
+				if typeof(CorrelatingTypeValue) == "table" and CorrelatingTypeValue.__optional then
 					continue
 				end
-                success = false
-                break
-            end
-            if typeof(v) == "table" then
-                success = self:Compare(v, orval)
-            end
-        else
-            local orval = self[n]
+				success = false
+				break
+			end
+			if typeof(v) == "table" then
+				success = self:Compare(v, CorrelatingTypeValue)
+			end
+		else
+			local CorrelatingTypeValue = self[n]
 
-            --this would set success to false if the given table having values inside which dont belong to the type. useful for similar types
-            if not orval then
-                success = false
-                break
-            end
-
-            --in case the value is entirely optional (indicated with the "?"), we should keep success at true
-            if not ((typeof(v) == orval) or (string.find(orval, "?"))) then
-                if typeof(orval) == "table" and orval.__optional then
+			--in case the value is entirely optional (indicated with the "?"), we should keep success at true
+			if not ((typeof(v) == CorrelatingTypeValue) or (string.find(CorrelatingTypeValue, "?"))) then
+				if typeof(CorrelatingTypeValue) == "table" and CorrelatingTypeValue.__optional then
 					continue
 				end
-                success = false
-                break
-            end
+				success = false
+				break
+			end
 
-            --if we have a nested type then we also have to compare descendants of the table
-            if typeof(v) == "table" then
-                success = self:Compare(v, orval)
-            end
-        end
-    end
+			--if we have a nested type then we also have to compare descendants of the table
+			if typeof(v) == "table" then
+				success = self:Compare(v, CorrelatingTypeValue)
+			end
+		end
+	end
 
-    return success
+	return success
 end
 
-local function new(Name, originaltable : {any})
-    Aux:AssertWarn(Aux.TableFunctions:GetTableType(originaltable) == "Dictionary", tostring(originaltable).." must be a dictionary.")
+local function new(Name, originaltable : {any}) : Type
+	Aux:AssertWarn(Aux.TableFunctions:GetTableType(originaltable) == "Dictionary", tostring(originaltable).." must be a dictionary.")
 
-    local self = Aux:DeepCopy(originaltable)
-    setmetatable(self, TypeClass)
-    CustomTypes.Types[Name] = self
-    table.freeze(self)
-    return self
+	local self = Aux.TableFunctions:DeepCopy(originaltable)
+	setmetatable(self, TypeClass)
+	CustomTypes.Types[Name] = self
+	table.freeze(self)
+	return self
 end
 
-function CustomTypes:GetCustomType(TypeName, TypeData : {any}) : {}
-    Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
+function CustomTypes:GetCustomType(TypeName) : Type | nil
+	Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
 
-    if CustomTypes[TypeName] then
-        return CustomTypes[TypeName]
-    else
-        Aux:AssertWarn(typeof(TypeData) == "table", tostring(TypeData).." isn't a table.")
+	if CustomTypes[TypeName] then
+		return CustomTypes[TypeName]
+	end
+	
+	return
+end
 
-        return new(TypeName, TypeData)
-    end
+function CustomTypes:CreateType(TypeName : string, TypeData : {any}) : Type
+	Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
+	Aux:AssertWarn(typeof(TypeData) == "table", tostring(TypeData).." isn't a table.")
+	Aux:AssertWarn(Aux.TableFunctions:GetTableType(TypeData) == "Dictionary", tostring(TypeData).." must be a Dictionary.")
+	
+	return new(TypeName, TypeData)
 end
 
 return CustomTypes
