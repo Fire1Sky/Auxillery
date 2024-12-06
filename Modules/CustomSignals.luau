@@ -86,7 +86,7 @@ function Class:RemoveDependency()
 end
 
 --Returns the <code>CustomSignal</code> of the Instance's Property. If nonexistent, it'll create a new one.
-function CustomSignals:Get(Inst : Instance, Property : string) : Custom_Signal
+function CustomSignals:Get(Inst : Instance, Property : string) : Custom_Signal?
 	Aux:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
 	Aux:AssertWarn(typeof(Property) == "string", tostring(Property).." isn't a string.")
 
