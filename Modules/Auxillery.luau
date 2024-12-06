@@ -50,7 +50,7 @@ end
 
 	timeout: optional argument which stops yielding the code after runtime exceeds the timeout value.
 ]]
-function Auxillery.TableFunctions:Await(tab : {}, key : any, timeout : number?) : any
+function Auxillery.TableFunctions:Await(tab : {}, key : any, timeout : number?) : any?
 	Auxillery:AssertWarn(typeof(tab) == "table", tostring(tab).." isn't a table.")
 	Auxillery:AssertWarn(key, "key is nil.")
 
@@ -89,7 +89,7 @@ end
 	
 	Returns a boolean indicating if the TargetNumber is within the range of the ReferenceNumber and the actual Distance.
 ]]
-function Auxillery:NumberInRange(ReferenceNumber : number, TargetNumber : number, MaxDistance : number) : boolean & number
+function Auxillery:NumberInRange(ReferenceNumber : number, TargetNumber : number, MaxDistance : number)
 	Auxillery:AssertWarn(typeof(ReferenceNumber) == "number", tostring(ReferenceNumber).." isn't a number.")
 	Auxillery:AssertWarn(typeof(TargetNumber) == "number", tostring(TargetNumber).." isn't a number.")
 	Auxillery:AssertWarn(typeof(MaxDistance) == "number", tostring(MaxDistance).." isn't a number.")
@@ -123,7 +123,7 @@ function Auxillery:AssertWarn(Condition : any, Msg : string)
 end
 
 --Returns the Distance between 2 BaseParts.
-function Auxillery.InstanceFunctions:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number
+function Auxillery.InstanceFunctions:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number?
 	Auxillery:AssertWarn(typeof(Inst1) == "Instance", tostring(Inst1).." isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Inst2) == "Instance", tostring(Inst2).." isn't a Instance.")
 
@@ -134,7 +134,7 @@ function Auxillery.InstanceFunctions:GetDistance(Inst1 : BasePart, Inst2 : BaseP
 end
 
 --Creates a Debounce (Cooldown) for the given Instance. Returns true if it's still on cooldown
-function Auxillery.InstanceFunctions:Debounce(Inst : Instance, Duration : number) : boolean
+function Auxillery.InstanceFunctions:Debounce(Inst : Instance, Duration : number) : boolean?
 	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
 	Auxillery:AssertWarn(typeof(Duration) == "number", Duration.." isn't a number.")
 
@@ -150,7 +150,7 @@ function Auxillery.InstanceFunctions:Debounce(Inst : Instance, Duration : number
 end
 
 --Returns a string descriping if the given Table is a Array or a Dictionary.
-function Auxillery.TableFunctions:GetTableType(Table : {any}) : string
+function Auxillery.TableFunctions:GetTableType(Table : {any}) : string?
 	Auxillery:AssertWarn(typeof(Table) == "table", tostring(Table).." isn't a table.")
 
 	local Result = ""
@@ -192,7 +192,7 @@ end
 
 	Properties: A Dictionary which contains every Property and Value that should be set
 ]]
-function Auxillery.InstanceFunctions:CreateInstance(Type : string, Properties : {any}) : Instance | nil
+function Auxillery.InstanceFunctions:CreateInstance(Type : string, Properties : {[string] : any}?) : Instance?
 	Auxillery:AssertWarn(typeof(Type) == "string", Type.." isn't a string.")
 
 	if Properties then
