@@ -40,7 +40,7 @@ local function FindAnimationTrack(AnimationRunner : {any}, Animation : Animation
 	end
 end
 
-function Animate:LoadAnimation(AnimationController : Humanoid | AnimationController | Animator, Animation : Animation | number, GivenArgs : {})
+function Animate:LoadAnimation(AnimationController : Humanoid | AnimationController | Animator, Animation : Animation | number, GivenArgs : {}?)
 	Aux:AssertWarn(typeof(AnimationController) == "Instance", tostring(AnimationController).." isn't a Instance.")
 	Aux:AssertWarn(AnimationController:IsA("Humanoid") or AnimationController:IsA("AnimationController") or AnimationController:IsA("Animator"), tostring(AnimationController).." isn't a valid Animation Controller.")
 
@@ -62,7 +62,7 @@ function Animate:LoadAnimation(AnimationController : Humanoid | AnimationControl
 		Track:AdjustSpeed(Args.Speed or DefaultArgs.Speed)
 	else
 		if typeof(Animation) == "number" then
-			local AnimInstance = Aux:CreateInstance("Animation", {AnimationId = "rbxassetid://"..Animation})
+			local AnimInstance = Aux.InstanceFunctions:CreateInstance("Animation", {AnimationId = "rbxassetid://"..Animation})
 			Track = AnimationController:LoadAnimation(AnimInstance)
 			AnimInstance:Destroy()
 		else
