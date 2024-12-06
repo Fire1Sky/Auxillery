@@ -32,7 +32,7 @@ Takes *3* Arguments:
 > The GivenArgs Argument is entirely optional.
 
 
-The Method returns the AnimationTrack.
+<ins>The Method returns the AnimationTrack.</ins>
 
 
 Code Sample:
@@ -94,7 +94,7 @@ Animate:UnloadAnimation(AnimationController, Animation)
 The purpose of this module is to make writing code easier. It contains functions which are useful for most scripts.
 
 ### Auxillery:GetServices()
-Instead of defining all services needed repetitively, you can use this method to get a table with services that are commonly used. You can edit it to your needs.
+Instead of defining all services needed repetitively, you can use this method to get a <ins>table with services that are commonly used</ins>. You can edit it to your needs.
 
 I added a custom variable for bridgenet2, since its a direct upgrade to remotes. you may keep it at nil if unused.
 
@@ -128,7 +128,7 @@ PrintSomething(true) --Output: MessageToPrint isn't a string
 ### Auxillery:GenerateRandomID()
 Uses HttpService to obtain a randomly generated ID
 
-Returns a string if HttpService is enabled, else it'll return nil.
+<ins>Returns a string if HttpService is enabled, else it'll return nil.</ins>
 
 ### Auxillery:NumberInRange()
 This method is used to check the distance between 2 numbers.
@@ -143,7 +143,7 @@ Takes *3* Arguments:
 - **MaxDistance** (number): The maximal range between ReferenceNumber and TargetNumber which decides if the boolean is true or false.
 
 
-Returns a boolean which indicates whether or not the TargetNumber is within the ReferenceNumber, and the distance.
+<ins>Returns a boolean which indicates whether or not the TargetNumber is within the ReferenceNumber, and the distance.</ins>
 
 
 Code Sample:
@@ -156,13 +156,8 @@ print(IsInRange) --Output: false
 print(Distance) --Output: 10
 ```
 
-### Auxillery.TableFunctions
-This table stores functions only relevant to tables.
 
-
-
-
-#### DeepCopy()
+### Auxillery.TableFunctions:DeepCopy()
 Using table.clone() doesn't truly create a new independant table with the same values. Because of that, there's now a DeepCopy method. It also returns a copy of the table, but fully independant.
 
 Takes *1* Argument:
@@ -170,22 +165,17 @@ Takes *1* Argument:
 - **val** (table): The table to copy
 
 
-Returns the copied table.
+<ins>Returns the copied table.</ins>
 
-
-
-
-#### GetTableType()
-Tables come in 2 types: Arrays, and Dictionaries. This method indicates which one of the 2 the table is.
+### Auxillery.TableFunctions:DeepCopyGetTableType()
+Tables come in 2 types: Arrays and Dictionaries. This method indicates which one of the 2 the table is.
 
 Takes *1* Argument:
 
 - **Table** (table): The table to check
 
 
-Returns a string indicating the type of the table
-
-
+<ins>Returns a string indicating the type of the table</ins>
 
 Code Sample:
 ```lua
@@ -195,12 +185,48 @@ local function PrintTableType(tab)
     print(Auxillery.TableFunctions:GetTableType(tab))
 end
 
-PrintTableType({1,2,3}) --Output: Array
+PrintTableType({1, 2, 3}) --Output: Array
 PrintTableType({Hi = "Hello", Bye = "Cya"}) --Output: Dictionary
 ```
 
-### Auxillery.InstanceFunctions
-This table stores functions only relevant to instances.
+### Auxillery.TableFunctions:Await()
+> [!WARNING]
+> This method yields.
+
+Waits for a value within a table per key.
+
+Takes *3* Arguments:
+
+- **tab** (table): The table to go through
+- **key** (any): the key to wait for
+- **timeout** (number?): The amount of time to wait for maximally.
+
+If no timeout parameter is provided, the script will yield forever until the key is added to the table. After ~5 seconds of waiting, a warning will appear in the output informing you that a infinite yield is possible in the given table with the given key. 
+
+<ins>Returns the value if there is any.</ins>
+
+
+Code Sample:
+```lua
+local Auxillery = require(game.ReplicatedStorage.Modules.Auxillery)
+local Table = {"hi"}
+
+print(Auxillery.TableFunctions:Await(Table, 1)) --Output: hi
+print(Auxillery.TableFunctions:Await(Table, "KeyXYZ")) --Delayed Output (2s): I am a value.
+task.wait(2)
+Table.KeyXYZ = "I am a value."
+print(Auxillery.TableFunctions:Await(Table, 5, 1)) --Output: nil
+print(Auxillery.TableFunctions:Await(Table, 10)) --Delayed Output (5s): Infinite yield possible with table Table and key 10
+```
+
+### Auxillery.InstanceFunctions:GetDistance()
+<ins>Returns the Distance between 2 BaseParts.</ins>
+
+Takes *2* Arguments:
+
+- **Inst1** (BasePart): The first basepart to compare.
+
+- **Inst2** (BasePart): The second basepart to compare.
 
 ## CustomSignals
 
