@@ -50,7 +50,7 @@ end
 
 	timeout: optional argument which stops yielding the code after runtime exceeds the timeout value.
 ]]
-function Auxillery.TableFunctions:Await(tab : {}, key : any, timeout : number) : any
+function Auxillery.TableFunctions:Await(tab : {}, key : any, timeout : number?) : any
 	Auxillery:AssertWarn(typeof(tab) == "table", tostring(tab).." isn't a table.")
 	Auxillery:AssertWarn(key, "key is nil.")
 
