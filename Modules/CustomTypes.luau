@@ -76,6 +76,8 @@ function CustomTypes:GetCustomType(TypeName) : Type?
 	if CustomTypes[TypeName] then
 		return CustomTypes[TypeName]
 	end
+
+	return
 end
 
 function CustomTypes:CreateType(TypeName : string, TypeData : {any}) : Type?
