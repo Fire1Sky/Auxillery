@@ -25,15 +25,15 @@ export type Custom_Signal = {
 	RemoveDependency : (self : {}) -> nil
 }
 
-local function GetNewSignal(Inst : Instance, Property : string) : Custom_Signal
+local function GetNewSignal(Inst : Instance, Property : string) : Custom_Signal?
 	Aux:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
 	Aux:AssertWarn(typeof(Property) == "string", tostring(Property).." isn't a string.")
 
-	Aux:AssertWarn(Aux:SaveCheckProperty(Inst, Property), tostring(Property).." isn't a valid Property of "..tostring(Inst))
+	Aux:AssertWarn(Aux.InstanceFunctions:SaveCheckProperty(Inst, Property), tostring(Property).." isn't a valid Property of "..tostring(Inst))
 	local SavedInstance = Saved[Inst]
 
 	local CustomSignal = {}
-	local Bind = Aux:CreateInstance("BindableEvent")
+	local Bind = Aux.InstanceFunctions:CreateInstance("BindableEvent")
 
 	CustomSignal.Bind = Bind
 	CustomSignal.Dependencies = 1
@@ -87,6 +87,9 @@ end
 
 --Returns the <code>CustomSignal</code> of the Instance's Property. If nonexistent, it'll create a new one.
 function CustomSignals:Get(Inst : Instance, Property : string) : Custom_Signal
+	Aux:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
+	Aux:AssertWarn(typeof(Property) == "string", tostring(Property).." isn't a string.")
+
 	local SavedInstance = Saved[Inst]
 
 	if SavedInstance then
