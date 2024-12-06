@@ -150,7 +150,7 @@ function Auxillery.InstanceFunctions:Debounce(Inst : Instance, Duration : number
 end
 
 --Returns a string descriping if the given Table is a Array or a Dictionary.
-function Auxillery.TableFunctions:GetTableType(Table : {any}) : string?
+function Auxillery.TableFunctions:GetTableType(Table : {}) : string?
 	Auxillery:AssertWarn(typeof(Table) == "table", tostring(Table).." isn't a table.")
 
 	local Result = ""
