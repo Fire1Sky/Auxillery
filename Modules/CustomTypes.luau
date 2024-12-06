@@ -60,7 +60,7 @@ function TypeClass:Compare(TableToCompare : {}, Orig : {}?) : boolean
 	return success
 end
 
-local function new(Name, originaltable : {any}) : Type
+local function new(Name, originaltable : {any}) : Type?
 	Aux:AssertWarn(Aux.TableFunctions:GetTableType(originaltable) == "Dictionary", tostring(originaltable).." must be a dictionary.")
 
 	local self = Aux.TableFunctions:DeepCopy(originaltable)
@@ -70,17 +70,15 @@ local function new(Name, originaltable : {any}) : Type
 	return self
 end
 
-function CustomTypes:GetCustomType(TypeName) : Type | nil
+function CustomTypes:GetCustomType(TypeName) : Type?
 	Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
 
 	if CustomTypes[TypeName] then
 		return CustomTypes[TypeName]
 	end
-	
-	return
 end
 
-function CustomTypes:CreateType(TypeName : string, TypeData : {any}) : Type
+function CustomTypes:CreateType(TypeName : string, TypeData : {any}) : Type?
 	Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
 	Aux:AssertWarn(typeof(TypeData) == "table", tostring(TypeData).." isn't a table.")
 	Aux:AssertWarn(Aux.TableFunctions:GetTableType(TypeData) == "Dictionary", tostring(TypeData).." must be a Dictionary.")
