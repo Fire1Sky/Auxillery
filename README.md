@@ -1,4 +1,4 @@
-# Modules
+# Auxillery
 
 This repository contains a bunch of modules I made and think you should use. Their uses vary a lot, as they are based on my needs. Although I'm sure a lot of people will find uses for these.
 
