@@ -9,7 +9,7 @@ local CustomTypes = {
 	Types = {}
 }
 
-local Mods = game.ReplicatedStorage:WaitForChild("Modules")
+local Mods = script.Parent
 local Aux = require(Mods.Auxillery)
 
 local TypeClass = {}

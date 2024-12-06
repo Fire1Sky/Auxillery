@@ -4,7 +4,7 @@
 	Dependencies: Auxillery
 ]]
 
-local Mods = game:GetService("ReplicatedStorage").Modules
+local Mods = script.Parent
 
 local Aux = require(Mods.Auxillery)
 local Services = Aux:GetServices()
