@@ -19,7 +19,7 @@ export type Type = {
 	Compare : (self : {any}, BaseTable : {any}, TableToCompare : {any}) -> boolean
 }
 
-function TypeClass:Compare(BaseTable: {any}, TableToCompare: {any}): boolean
+function TypeClass:Compare(BaseTable: {any}, TableToCompare: {any}, logging : boolean?): boolean
 	if next(BaseTable) and not next(TableToCompare) then
 		return false
 	end
@@ -36,7 +36,9 @@ function TypeClass:Compare(BaseTable: {any}, TableToCompare: {any}): boolean
 				end
 			end
 		elseif expected == nil then
-			print(key.." isn't within the table")
+			if logging then
+				print(key.." isn't within "..tostring(TableToCompare))
+			end
 			if typeof(base) == "string" and string.find(base, "?") then
 				continue
 			elseif typeof(base) == "table" and base.__optional then
