@@ -7,7 +7,7 @@ Thats useful because if you call LoadAnimation() on an AnimationController itsel
 
 |Dependencies|
 |---|
-|[Auxillery](https://github.com/Fire1Sky/Modules/blob/main/Modules/Auxillery.luau)|
+|[Auxiliary](https://github.com/Fire1Sky/Auxillery/blob/main/Auxillery/Auxiliary.luau)|
 
 ### Animate:LoadAnimation()
 This is used to load Animations on a AnimationController. The AnimationTrack will then be saved within the module.
@@ -37,7 +37,7 @@ Takes *3* Arguments:
 
 Code Sample:
 ```lua
-local Animate = require(game.ReplicatedStorage.Modules.Animate)
+local Animate = require(game.ReplicatedStorage.Auxillery.Animate)
 local Character = workspace.CharacterXYZ
 
 local AnimationController = Character.Humanoid.Animator
@@ -73,7 +73,7 @@ Takes *2* Arguments:
 
 Code Sample:
 ```lua
-local Animate = require(game.ReplicatedStorage.Modules.Animate)
+local Animate = require(game.ReplicatedStorage.Auxillery.Animate)
 local Character = workspace.CharacterXYZ
 
 local AnimationController = Character.Humanoid.Animator
@@ -90,15 +90,15 @@ end
 Animate:UnloadAnimation(AnimationController, Animation)
 ```
 
-## Auxillery
+## Auxiliary
 The purpose of this module is to make writing code easier. It contains functions which are useful for most scripts.
 
-### Auxillery:GetServices()
+### Auxiliary:GetServices()
 Instead of defining all services needed repetitively, you can use this method to get a <ins>table with services that are commonly used</ins>. You can edit it to your needs.
 
 I added a custom variable for bridgenet2, since its a direct upgrade to remotes. you may keep it at nil if unused.
 
-### Auxillery:AssertWarn()
+### Auxiliary:AssertWarn()
 Replicates the behaviour of assert(), but uses warn() instead to prevent errors.
 
 
@@ -114,10 +114,10 @@ If the condition given equals false or nil, the script will halt and the given m
 
 Code Sample:
 ```lua
-local Auxillery = require(game.ReplicatedStorage.Modules.Auxillery)
+local Aux = require(game.ReplicatedStorage.Auxillery.Auxiliary)
 
 local function PrintSomething(MessageToPrint : string)
-    Auxillery:AssertWarn(typeof(MessageToPrint) == "string", "MessageToPrint isn't a string")
+    Aux:AssertWarn(typeof(MessageToPrint) == "string", "MessageToPrint isn't a string")
     print(MessageToPrint)
 end
 
@@ -125,12 +125,12 @@ PrintSomething("Hi there") --Output: Hi there
 PrintSomething(true) --Output: MessageToPrint isn't a string
 ```
 
-### Auxillery:GenerateRandomID()
+### Auxiliary:GenerateRandomID()
 Uses HttpService to obtain a randomly generated ID
 
 <ins>Returns a string if HttpService is enabled, else it'll return nil.</ins>
 
-### Auxillery:NumberInRange()
+### Auxiliary:NumberInRange()
 This method is used to check the distance between 2 numbers.
 
 
@@ -148,16 +148,16 @@ Takes *3* Arguments:
 
 Code Sample:
 ```lua
-local Auxillery = require(game.ReplicatedStorage.Modules.Auxillery)
+local Aux = require(game.ReplicatedStorage.Auxillery.Auxiliary)
 
-local IsInRange, Distance = Auxillery:NumberInRange(50, 40, 1)
+local IsInRange, Distance = Aux:NumberInRange(50, 40, 1)
 
 print(IsInRange) --Output: false
 print(Distance) --Output: 10
 ```
 
 
-### Auxillery.TableFunctions:DeepCopy()
+### Auxiliary.TableFunctions:DeepCopy()
 Using table.clone() doesn't truly create a new independant table with the same values. Because of that, there's now a DeepCopy method. It also returns a copy of the table, but fully independant.
 
 Takes *1* Argument:
@@ -167,7 +167,7 @@ Takes *1* Argument:
 
 <ins>Returns the copied table.</ins>
 
-### Auxillery.TableFunctions:DeepCopyGetTableType()
+### Auxiliary.TableFunctions:DeepCopyGetTableType()
 Tables come in 2 types: Arrays and Dictionaries. This method indicates which one of the 2 the table is.
 
 Takes *1* Argument:
@@ -179,17 +179,17 @@ Takes *1* Argument:
 
 Code Sample:
 ```lua
-local Auxillery = require(game.ReplicatedStorage.Modules.Auxillery)
+local Aux = require(game.ReplicatedStorage.Auxillery.Auxiliary)
 
 local function PrintTableType(tab)
-    print(Auxillery.TableFunctions:GetTableType(tab))
+    print(Aux.TableFunctions:GetTableType(tab))
 end
 
 PrintTableType({1, 2, 3}) --Output: Array
 PrintTableType({Hi = "Hello", Bye = "Cya"}) --Output: Dictionary
 ```
 
-### Auxillery.TableFunctions:Await()
+### Auxiliary.TableFunctions:Await()
 > [!WARNING]
 > This method yields.
 
@@ -208,18 +208,18 @@ If no timeout parameter is provided, the script will yield forever until the key
 
 Code Sample:
 ```lua
-local Auxillery = require(game.ReplicatedStorage.Modules.Auxillery)
+local Aux = require(game.ReplicatedStorage.Modules.Auxiliary)
 local Table = {"hi"}
 
-print(Auxillery.TableFunctions:Await(Table, 1)) --Output: hi
-print(Auxillery.TableFunctions:Await(Table, "KeyXYZ")) --Delayed Output (2s): I am a value.
+print(Aux.TableFunctions:Await(Table, 1)) --Output: hi
+print(Aux.TableFunctions:Await(Table, "KeyXYZ")) --Delayed Output (2s): I am a value.
 task.wait(2)
 Table.KeyXYZ = "I am a value."
-print(Auxillery.TableFunctions:Await(Table, 5, 1)) --Output: nil
-print(Auxillery.TableFunctions:Await(Table, 10)) --Delayed Output (5s): Infinite yield possible with table Table and key 10
+print(Aux.TableFunctions:Await(Table, 5, 1)) --Output: nil
+print(Aux.TableFunctions:Await(Table, 10)) --Delayed Output (5s): Infinite yield possible with table Table and key 10
 ```
 
-### Auxillery.InstanceFunctions:GetDistance()
+### Auxiliary.InstanceFunctions:GetDistance()
 <ins>Returns the Distance between 2 BaseParts.</ins>
 
 Takes *2* Arguments:
