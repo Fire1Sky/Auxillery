@@ -10,55 +10,46 @@ local CustomTypes = {
 }
 
 local Mods = script.Parent
-local Aux = require(Mods.Auxillery)
+local Aux = require(Mods.Auxiliary)
 
 local TypeClass = {}
 TypeClass.__index = TypeClass
 
 export type Type = {
-	Compare : (self : {any}, TableToCompare : {any}) -> boolean
+	Compare : (self : {any}, BaseTable : {any}, TableToCompare : {any}) -> boolean
 }
 
---Checks if the given table is this specific type.
-function TypeClass:Compare(TableToCompare : {}, Orig : {}?) : boolean
-	Aux:AssertWarn(typeof(TableToCompare) == "table", tostring(TableToCompare).." isn't a table.")
-	local success = true
+function TypeClass:Compare(BaseTable: {any}, TableToCompare: {any}): boolean
+	if next(BaseTable) and not next(TableToCompare) then
+		return false
+	end
 
-	for n, v in pairs(TableToCompare) do
-		if Orig then
-			local CorrelatingTypeValue = Orig[n]
-			
-			if not ((typeof(v) == CorrelatingTypeValue) or (string.find(CorrelatingTypeValue, "?"))) then
-				if typeof(CorrelatingTypeValue) == "table" and CorrelatingTypeValue.__optional then
+	for key, base in pairs(BaseTable) do
+		local expected = TableToCompare[key]
+
+		if expected then
+			if typeof(expected) == "table" then
+				if TypeClass:Compare(base, expected) then
 					continue
+				else
+					return false
 				end
-				success = false
-				break
 			end
-			if typeof(v) == "table" then
-				success = self:Compare(v, CorrelatingTypeValue)
+		elseif expected == nil then
+			print(key.." isn't within the table")
+			if typeof(base) == "string" and string.find(base, "?") then
+				continue
+			elseif typeof(base) == "table" and base.__optional then
+				continue
 			end
-		else
-			local CorrelatingTypeValue = self[n]
-
-			--in case the value is entirely optional (indicated with the "?"), we should keep success at true
-			if not ((typeof(v) == CorrelatingTypeValue) or (string.find(CorrelatingTypeValue, "?"))) then
-				if typeof(CorrelatingTypeValue) == "table" and CorrelatingTypeValue.__optional then
-					continue
-				end
-				success = false
-				break
-			end
-
-			--if we have a nested type then we also have to compare descendants of the table
-			if typeof(v) == "table" then
-				success = self:Compare(v, CorrelatingTypeValue)
-			end
+			return false
 		end
 	end
 
-	return success
+	return true
 end
+
+
 
 local function new(Name, originaltable : {any}) : Type?
 	Aux:AssertWarn(Aux.TableFunctions:GetTableType(originaltable) == "Dictionary", tostring(originaltable).." must be a dictionary.")
@@ -76,7 +67,7 @@ function CustomTypes:GetCustomType(TypeName) : Type?
 	if CustomTypes[TypeName] then
 		return CustomTypes[TypeName]
 	end
-
+	
 	return
 end
 
@@ -84,7 +75,7 @@ function CustomTypes:CreateType(TypeName : string, TypeData : {any}) : Type?
 	Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
 	Aux:AssertWarn(typeof(TypeData) == "table", tostring(TypeData).." isn't a table.")
 	Aux:AssertWarn(Aux.TableFunctions:GetTableType(TypeData) == "Dictionary", tostring(TypeData).." must be a Dictionary.")
-	
+
 	return new(TypeName, TypeData)
 end
 
