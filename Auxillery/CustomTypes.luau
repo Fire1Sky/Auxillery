@@ -11,50 +11,17 @@ local CustomTypes = {
 
 local Mods = script.Parent
 local Aux = require(Mods.Auxiliary)
-
 local TypeClass = {}
 TypeClass.__index = TypeClass
 
-export type Type = {
-	Compare : (self : {any}, BaseTable : {any}, TableToCompare : {any}) -> boolean
-}
-
-function TypeClass:Compare(BaseTable: {any}, TableToCompare: {any}, logging : boolean?): boolean
-	if next(BaseTable) and not next(TableToCompare) then
-		return false
-	end
-
-	for key, base in pairs(BaseTable) do
-		local expected = TableToCompare[key]
-
-		if expected then
-			if typeof(expected) == "table" then
-				if TypeClass:Compare(base, expected) then
-					continue
-				else
-					return false
-				end
-			end
-		elseif expected == nil then
-			if logging then
-				print(key.." isn't within "..tostring(TableToCompare))
-			end
-			if typeof(base) == "string" and string.find(base, "?") then
-				continue
-			elseif typeof(base) == "table" and base.__optional then
-				continue
-			end
-			return false
-		end
-	end
-
-	return true
+function TypeClass:Compare(Other : {}) : boolean
+	assert(typeof(Other) == "table" and Aux.TableFunctions:GetTableType(Other) == "Dictionary", "Invalid table.")
+	return Aux.TableFunctions:Compare(self, Other, true)
 end
 
 
-
-local function new(Name, originaltable : {any}) : Type?
-	Aux:AssertWarn(Aux.TableFunctions:GetTableType(originaltable) == "Dictionary", tostring(originaltable).." must be a dictionary.")
+local function new(Name, originaltable : {any})
+	assert(Aux.TableFunctions:GetTableType(originaltable) == "Dictionary", tostring(originaltable).." must be a dictionary.")
 
 	local self = Aux.TableFunctions:DeepCopy(originaltable)
 	setmetatable(self, TypeClass)
@@ -63,20 +30,20 @@ local function new(Name, originaltable : {any}) : Type?
 	return self
 end
 
-function CustomTypes:GetCustomType(TypeName) : Type?
-	Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
+function CustomTypes:GetCustomType(TypeName)
+	assert(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
 
 	if CustomTypes[TypeName] then
 		return CustomTypes[TypeName]
 	end
-	
+
 	return
 end
 
-function CustomTypes:CreateType(TypeName : string, TypeData : {any}) : Type?
-	Aux:AssertWarn(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
-	Aux:AssertWarn(typeof(TypeData) == "table", tostring(TypeData).." isn't a table.")
-	Aux:AssertWarn(Aux.TableFunctions:GetTableType(TypeData) == "Dictionary", tostring(TypeData).." must be a Dictionary.")
+function CustomTypes:CreateType(TypeName : string, TypeData : {any})
+	assert(typeof(TypeName) == "string", tostring(TypeName).." isn't a string.")
+	assert(typeof(TypeData) == "table", tostring(TypeData).." isn't a table.")
+	assert(Aux.TableFunctions:GetTableType(TypeData) == "Dictionary", tostring(TypeData).." must be a Dictionary.")
 
 	return new(TypeName, TypeData)
 end
