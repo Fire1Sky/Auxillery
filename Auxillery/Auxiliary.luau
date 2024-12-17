@@ -1,3 +1,4 @@
+--!strict
 --[[
 	Auxillery
 	Contains a bunch of functionality, allowing cleaner code.
@@ -9,8 +10,6 @@ local Auxillery = {
 }
 
 local Debounces = {}
-
-local _BridgeNet = nil --Reference to BridgeNet if used. Use require() when referencing
 
 local Services = {
 	P = game:GetService("Players"),
@@ -29,12 +28,9 @@ local Services = {
 	HS = game:GetService("HttpService"),
 	PS = game:GetService("PathfindingService"),
 	PHYS = game:GetService("PhysicsService"),
-	DE = game:GetService("Debris")
+	DE = game:GetService("Debris"),
+	BN = require(script.BridgeNet2)
 }
-
-if _BridgeNet then
-	Services.BN = _BridgeNet
-end
 
 --Gets a table with Service shortcuts.
 function Auxillery:GetServices()
@@ -51,8 +47,8 @@ end
 	timeout: optional argument which stops yielding the code after runtime exceeds the timeout value.
 ]]
 function Auxillery.TableFunctions:Await(tab : {}, key : any, timeout : number?) : any?
-	Auxillery:AssertWarn(typeof(tab) == "table", tostring(tab).." isn't a table.")
-	Auxillery:AssertWarn(key, "key is nil.")
+	assert(typeof(tab) == "table", tostring(tab).." isn't a table.")
+	assert(key, "key is nil.")
 
 	if tab[key] then
 		return tab[key]
@@ -71,17 +67,65 @@ function Auxillery.TableFunctions:Await(tab : {}, key : any, timeout : number?) 
 		else
 			local printed = false
 			repeat
-				if Auxillery:NumberInRange(5, runtime, 0.015) and not printed then
+				if Auxillery:NumberInRange(5, runtime, 0.1) and not printed then
 					printed = true
 					warn("Infinite yield possible with table "..tostring(tab).." and key "..tostring(key))
 				end
 				runtime += 0.015
-				task.wait()
+				Services.RNS.Heartbeat:Wait()
 			until tab[key]
 
 			return tab[key]
 		end
 	end
+end
+
+function Auxillery:AssertWarn(Condition : boolean, Msg : string) : boolean
+	if not Condition then
+		if Msg then
+			warn(Msg)
+		end
+		return true
+	end
+	return false
+end
+
+function Auxillery.TableFunctions:Compare(BaseTable: {any}, TableToCompare: {any}, logging : boolean?): boolean
+	assert(typeof(BaseTable) == "table", "Invalid table.")
+	assert(typeof(TableToCompare) == "table", "Invalid table.")
+	if next(BaseTable) and not next(TableToCompare) then
+		return false
+	end
+
+	for key, base in pairs(BaseTable) do
+		if tostring(key) == "__optional" then return true end
+		local expected = TableToCompare[key]
+
+		if expected then
+			if typeof(expected) == "table" then
+				if Auxillery.TableFunctions:Compare(base, expected) then
+					continue
+				else
+					return false
+				end
+			end
+			if typeof(expected) ~= string.gsub(base, "?","") then
+				warn(key.." ("..typeof(expected)..") doesn't equal to expected "..base.." type.")
+				return false
+			end
+		elseif expected == nil then
+			if typeof(base) == "string" and string.find(base, "?") then
+				continue
+			elseif typeof(base) == "table" and base.__optional then
+				continue
+			end
+
+			warn(key.." isn't within "..tostring(TableToCompare))
+			return false
+		end
+	end
+
+	return true
 end
 
 --[[
@@ -90,9 +134,9 @@ end
 	Returns a boolean indicating if the TargetNumber is within the range of the ReferenceNumber and the actual Distance.
 ]]
 function Auxillery:NumberInRange(ReferenceNumber : number, TargetNumber : number, MaxDistance : number)
-	Auxillery:AssertWarn(typeof(ReferenceNumber) == "number", tostring(ReferenceNumber).." isn't a number.")
-	Auxillery:AssertWarn(typeof(TargetNumber) == "number", tostring(TargetNumber).." isn't a number.")
-	Auxillery:AssertWarn(typeof(MaxDistance) == "number", tostring(MaxDistance).." isn't a number.")
+	assert(typeof(ReferenceNumber) == "number", tostring(ReferenceNumber).." isn't a number.")
+	assert(typeof(TargetNumber) == "number", tostring(TargetNumber).." isn't a number.")
+	assert(typeof(MaxDistance) == "number", tostring(MaxDistance).." isn't a number.")
 
 	local dist = math.abs(ReferenceNumber - TargetNumber)
 	local iswithinRange = dist < MaxDistance
@@ -102,41 +146,25 @@ end
 
 --Returns a random ID (requires HttpService to be enabled)
 function Auxillery:GenerateRandomId() : string
-	Auxillery:AssertWarn(Services.HS.HttpEnabled, "Enable HttpService first before using this function.")
+	assert(Services.HS.HttpEnabled, "Enable HttpService first before using this function.")
 	return string.gsub(Services.HS:GenerateGUID(false), "-", "")
-end
-
---[[
-	Same functionality as assert(), but uses a warn instead.
-
-	Condition: If Condition is equal to false or nil the warn will trigger.
-
-	Msg: The warn message that should be displayed.
-]]
-function Auxillery:AssertWarn(Condition : any, Msg : string)
-	if not Condition then
-		if Msg then
-			warn(Msg)
-		end
-		return
-	end
 end
 
 --Returns the Distance between 2 BaseParts.
 function Auxillery.InstanceFunctions:GetDistance(Inst1 : BasePart, Inst2 : BasePart) : number?
-	Auxillery:AssertWarn(typeof(Inst1) == "Instance", tostring(Inst1).." isn't a Instance.")
-	Auxillery:AssertWarn(typeof(Inst2) == "Instance", tostring(Inst2).." isn't a Instance.")
+	assert(typeof(Inst1) == "Instance", tostring(Inst1).." isn't a Instance.")
+	assert(typeof(Inst2) == "Instance", tostring(Inst2).." isn't a Instance.")
 
-	Auxillery:AssertWarn(Inst1:IsA("BasePart"), tostring(Inst1).." isn't a BasePart.")
-	Auxillery:AssertWarn(Inst2:IsA("BasePart"), tostring(Inst2).." isn't a BasePart.")
+	assert(Inst1:IsA("BasePart"), tostring(Inst1).." isn't a BasePart.")
+	assert(Inst2:IsA("BasePart"), tostring(Inst2).." isn't a BasePart.")
 
 	return (Inst1.Position - Inst2.Position).Magnitude
 end
 
 --Creates a Debounce (Cooldown) for the given Instance. Returns true if it's still on cooldown
 function Auxillery.InstanceFunctions:Debounce(Inst : Instance, Duration : number) : boolean?
-	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
-	Auxillery:AssertWarn(typeof(Duration) == "number", Duration.." isn't a number.")
+	assert(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
+	assert(typeof(Duration) == "number", Duration.." isn't a number.")
 
 	if Debounces[Inst] then
 		return true
@@ -151,7 +179,7 @@ end
 
 --Returns a string descriping if the given Table is a Array or a Dictionary.
 function Auxillery.TableFunctions:GetTableType(Table : {}) : string?
-	Auxillery:AssertWarn(typeof(Table) == "table", tostring(Table).." isn't a table.")
+	assert(typeof(Table) == "table", tostring(Table).." isn't a table.")
 
 	local Result = ""
 	local Count = 0
@@ -192,12 +220,12 @@ end
 
 	Properties: A Dictionary which contains every Property and Value that should be set
 ]]
-function Auxillery.InstanceFunctions:CreateInstance(Type : string, Properties : {[string] : any}?) : Instance?
-	Auxillery:AssertWarn(typeof(Type) == "string", Type.." isn't a string.")
+function Auxillery.InstanceFunctions:CreateInstance(Type : string, Properties : {[string] : any}?)
+	assert(typeof(Type) == "string", Type.." isn't a string.")
 
 	if Properties then
-		Auxillery:AssertWarn(typeof(Properties) == "table", tostring(Properties).." is not a table.")
-		Auxillery:AssertWarn(Auxillery.TableFunctions:GetTableType(Properties) == "Dictionary", "Properties table must be a Dictionary.")
+		assert(typeof(Properties) == "table", tostring(Properties).." is not a table.")
+		assert(Auxillery.TableFunctions:GetTableType(Properties) == "Dictionary", "Properties table must be a Dictionary.")
 	end
 
 	local NewInstance = nil
@@ -218,8 +246,8 @@ end
 
 --Checks if a Instance has the given Property without errors.
 function Auxillery.InstanceFunctions:SaveCheckProperty(Inst : Instance, Property : string) : boolean
-	Auxillery:AssertWarn(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
-	Auxillery:AssertWarn(typeof(Property) == "string", tostring(Property).." isn't a string.")
+	assert(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
+	assert(typeof(Property) == "string", tostring(Property).." isn't a string.")
 
 	local function Check()
 		local P = Inst[Property]
