@@ -15,8 +15,8 @@ local TypeClass = {}
 TypeClass.__index = TypeClass
 
 function TypeClass:Compare(Other : {}) : boolean
-	assert(typeof(Other) == "table" and Aux.TableFunctions:GetTableType(Other) == "Dictionary", "Invalid table.")
-	return Aux.TableFunctions:Compare(self, Other, true)
+	assert(typeof(Other) == "table" and Aux.TableFunctions:GetTableType(Other) == "Dictionary", tostring(Other).." is a invalid table.")
+	return Aux.TableFunctions:Compare(self, Other)
 end
 
 
