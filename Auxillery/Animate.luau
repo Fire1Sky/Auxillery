@@ -16,7 +16,7 @@ local DefaultArgs = {
 
 local Aux = require(script.Parent.Auxiliary)
 
-function Animate:LoadAnimation(AnimationController : AnimationController | Animator | Humanoid, Animation : Animation, GivenArgs : {Priority : Enum.AnimationPriority, Speed : number, Looped : boolean, TimePosition : number}?) : AnimationTrack
+function Animate:LoadAnimation(AnimationController : AnimationController | Animator | Humanoid, Animation : Animation, GivenArgs : {Priority : Enum.AnimationPriority?, Speed : number?, Looped : boolean?, TimePosition : number?}?) : AnimationTrack
 	assert(typeof(AnimationController) == "Instance", tostring(AnimationController).." isn't a Instance.")
 	assert(AnimationController:IsA("AnimationController") or AnimationController:IsA("Animator") or AnimationController:IsA("Humanoid"), tostring(AnimationController).." isn't a valid Animation Controller.")
 	assert((typeof(Animation) == "Instance" and Animation:IsA("Animation")), tostring(Animation).." isn't a Animation.")
