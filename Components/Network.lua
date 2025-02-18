@@ -1,18 +1,29 @@
 local NetworkModule = {}
+local BridgeNet = require("../Dependencies/BridgeNet2")
 
 local Services = require("Services")
 local IsClient = Services.RNS:IsClient()
 
-local ClientFunctions = {}
-local ServerFunctions = {}
-local TableToReplicate = nil
+local TableToReplicate = {}
 
 if IsClient then
-  TableToReplicate = ClientFunctions
   --Setup Client
 else
-  TableToReplicate = ServerFunctions
   --Setup Server
+  function TableToReplicate:Fire(TargetInfo)
+   local SupportedTypes = {
+     All = BridgeNet.AllPlayers,
+     Players = BridgeNet.Players,
+     PlayersExcept = BridgeNet.PlayersExcept
+   }
+   
+   local Type = SupportedTypes[TargetInfo.Name]
+   
+   if not Type then
+     return
+   end
+  
+  end
 end
 
 for Name, Function in pairs(TableToReplicate) do
