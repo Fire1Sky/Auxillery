@@ -1,0 +1,103 @@
+--!strict
+
+local EmitterModule = {}
+local EmitterClass : EmitterClass = {}
+EmitterClass.__index = EmitterClass
+
+export type Emitter = typeof(setmetatable({} :: EmitterObject, {} :: EmitterClass))
+
+export type EmitterObject = {
+	Connections : {
+		[string] : EmitterConnections
+	}
+}
+export type EmitterClass = {
+	__index : EmitterClass,
+	Fire : (self : Emitter, Name : string, ...any) -> (),
+	Connect : (self : Emitter, Name : string, Callback : (...any) -> (any)) -> Connection,
+	Once : (self : Emitter, Name : string, Callback : (...any) -> (any)) -> Connection
+}
+
+export type Connection = {
+	Disconnect : (self : Connection) -> ()
+}
+
+export type EmitterConnections = {
+	[number] : {
+		Callback : () -> nil,
+		Type : "Connect" | "Once"
+	}
+}
+--Creates a Emitter
+function EmitterModule.new() : Emitter
+	local Emitter = {
+		Connections = {}
+	}
+	setmetatable(Emitter, EmitterClass)
+	return Emitter
+end
+
+--Fires a Event, if possible. Given Args will be sent to the Connection.
+function EmitterClass:Fire(Name : string, ... : any)
+	local Connections = self.Connections[Name]
+	
+	if not Connections then
+		return
+	end
+	
+	for Index, EmitterConnection in pairs(Connections) do
+		EmitterConnection.Callback()
+		if EmitterConnection.Type == "Once" then
+			table.remove(Connections, Index)
+		end
+	end
+end
+
+--Creates a Connection to a Event, and creates a Event if necessary.
+function EmitterClass:Connect(Name : string, Callback : (...any) -> ()) : Connection 
+	assert(typeof(Callback) == "function", "Invalid function parameter")
+	local Connections = self.Connections[Name]
+	
+	if not Connections then
+		self.Connections[Name] = {}
+		Connections = self.Connections[Name]
+	end
+	
+	table.insert(Connections, {Callback = Callback, Type = "Connect"})
+	
+	return {
+		Disconnect = function(self)
+			local index = table.find(Connections, {Callback = Callback, Type = "Connect"})
+			
+			if index then
+				Connections[index] = nil
+			end
+		end
+	}
+end
+
+--Equivalent to Connect, but terminates the Connection after running once.
+function EmitterClass:Once(Name : string, Callback : (...any) -> ()) : Connection
+	assert(typeof(Callback) == "function", "Invalid function parameter")
+	local Connections = self.Connections[Name]
+
+	if not Connections then
+		self.Connections[Name] = {}
+		Connections = self.Connections[Name]
+	end
+
+	table.insert(Connections, {Callback = Callback, Type = "Once"})
+
+	return {
+		--Disconnects the Connection from the Event.
+		Disconnect = function(self)
+			local index = table.find(Connections, {Callback = Callback, Type = "Once"})
+
+			if index then
+				Connections[index] = nil
+			end
+		end
+	}
+end
+
+return EmitterModule
