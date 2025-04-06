@@ -1,63 +1,65 @@
 --!strict
-local InstanceModule = {
-	Debounces = {}
-}
+local ExtendedInstance = {}
 
-local Table = require(script.Parent.Table)
+local Instance = require("../LowLevel/BaseTypes/Instance")
 
---Creates a Debounce (Cooldown) for the given Instance. Returns true if it's still on cooldown
-function InstanceModule:Debounce(Inst : Instance, Duration : number) : boolean?
-	assert(typeof(Inst) == "Instance", tostring(Inst).." isn't a Instance.")
-	assert(typeof(Duration) == "number", Duration.." isn't a number.")
+function ExtendedInstance:TableToInstance(Parent : Instance?, Table : {any})
+	assert(typeof(Parent) == "Instance", tostring(Parent).." is a invalid Parent.")
+	assert(typeof(Table) == "table", tostring(Table).." is a invalid table.")
+	local Types = {
+		string = "StringValue",
+		number = "NumberValue",
+		boolean = "BoolValue",
+		Instance = "ObjectValue"
+	}
 
-	if InstanceModule.Debounces[Inst] then
-		return true
-	end
-
-	local function Remove()
-		InstanceModule.Debounces[Inst] = nil
-	end
-
-	InstanceModule.Debounces[Inst] = true
-	task.delay(Duration, Remove)
-
-	return false
-end
-
---[[
-	Creates a Instance.
-	@Type: The ClassName of the Instance
-	@Properties: A Dictionary which contains every Property and Value that should be set
-]]
-function InstanceModule:CreateInstance<T>(Type : string, Properties : {[string] : any}?) : T
-	assert(typeof(Type) == "string", Type.." isn't a string.")
-
-	if Properties then
-		assert(typeof(Properties) == "table", tostring(Properties).." is not a table.")
-		assert(Table:GetTableType(Properties) == "Dictionary", "Properties table must be a Dictionary.")
-	end
-
-	local NewInstance = Instance.new(Type)
-	if Properties then
-		for Property, Value in pairs(Properties) do
-			if InstanceModule:SaveCheckProperty(NewInstance, Property) then
-				NewInstance[Property] = Value
-			end
+	for Name, Value in pairs(Table) do
+		local Type = typeof(Value)
+		if Types[Type] then
+			Instance:CreateInstance(Types[Type], {Parent = Parent, Name = Name, Value = Value})
+		elseif Type == "table" then
+			ExtendedInstance:TableToInstance(Instance:CreateInstance("Folder", {Parent = Parent, Name = Name}), Value)
 		end
 	end
-
-	return NewInstance
 end
 
---Checks if a Instance has the given Property.
-function InstanceModule:SaveCheckProperty(Inst : any, Property : string) : boolean
-	assert(typeof(Property) == "string", tostring(Property).." isn't a string.")
+function ExtendedInstance:InstanceToTable(Parent : Instance, Table : {})
+	assert(typeof(Parent) == "Instance", tostring(Parent).." is a invalid Parent.")
+	assert(typeof(Table) == "table", tostring(Table).." is a invalid table.")
+	local Types = {
+		StringValue = "StringValue",
+		NumberValue = "NumberValue",
+		BoolValue = "BoolValue",
+		ObjectValue = "ObjectValue"
+	}
 
-	local function Check()
-		local P = Inst[Property]
+	for _, Inst in pairs(Parent:GetChildren()) do
+		local Type = Inst.ClassName
+		if Types[Type] then
+			Table[Inst.Name] = Inst.Value
+		elseif Type == "Folder" then
+			local NewTab = {}
+			Table[Inst.Name] = NewTab
+			ExtendedInstance:InstanceToTable(Inst, NewTab)
+		end
 	end
-	local s = pcall(Check)
-	return s
 end
 
-return InstanceModule
+function ExtendedInstance:ConnectInstanceToTable(Parent : Instance, Table : {[string] : any})
+	assert(typeof(Parent) == "Instance", tostring(Parent).." is a invalid Parent.")
+	assert(typeof(Table) == "table", tostring(Table).." is a invalid table.")
+
+	for _, v in pairs(Parent:GetChildren()) do
+		if v:IsA("Folder") then
+			ExtendedInstance:ConnectInstanceToTable(v, Table[v.Name])
+		else
+			local function OnValueChange()
+				Table[v.Name] = v.Value
+			end
+
+			v:GetPropertyChangedSignal("Value"):Connect(OnValueChange)
+		end
+	end
+end
+
+return ExtendedInstance
