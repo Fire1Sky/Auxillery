@@ -2,18 +2,23 @@ The Auxillery Components are split in 2 Categories: High Level, and Low Level.
 Depending whether or not the Component has Dependencies, it goes either into Low Level or into High Level.
 
 # Low Level
+
 These Components don't have any Dependencies and are often required in other High Level Components.
 
 ## Emitter
+
 A Component mimicing the Signals from the Roblox engine. It's very straight forward to use, and probably the most important Dependency within Auxillery.
 
 ### new() -> Emitter
-The constructor for a Emitter.
+
+The constructor for a **Emitter**.
 
 ### Emitter:Fire(...) -> ()
+
 Fires a **Event**, if existent. You may pass in Arguments in form of a **Tuple**.
 
 ### Emitter:Connect(Event, Callback) -> Connection
+
 Connects a Callback to a **Event**. If the Event doesn't exist, it'll create one.
 
 |Argument|Type|Optional|Description|
@@ -22,18 +27,34 @@ Connects a Callback to a **Event**. If the Event doesn't exist, it'll create one
 |Callback|function|No|The Method to execute once the Event is fired. All Arguments parsed through **Emitter:Fire()** will sink into this method.|
 
 ### Emitter:Once(Event, Callback) -> Connection
+
 Identical to **Emitter:Connect()**, with the exception that the callback given only runs once. The Connection gets terminated afterwards.
 
 ### Connection:Disconnect() -> ()
+
 Removes the **Connection** from the **Event**, preventing it from being called again.
 
 ## Loot
 
+Simplifies Lootpools.
+
+### new(LootPool) -> LootPool
+Constructor for **LootPools**.
+
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|LootPool|table (Array)|No|The LootPool containing all Items. The Items should be in this format: {Name : string, Rarity : number}|
+
+
+### LootPool:GetRandomItem() -> Loot
+Returns one random Item in the Loot pool depending on the rarities.
 
 ## Instance
-Extends upon the Instance Library. Part of the BaseType Components
 
-### CreateInstance<T>(Class, Properties) -> T
+Extends upon the Instance Library. Part of the BaseTypes Library.
+
+### CreateInstance<_Type>(Class, Properties) -> _Type
+
 Equivalent to the standard **Instance.new()**, but let's you apply Properties when creating the Instance.
 
 |Argument|Type|Optional|Description|
@@ -42,6 +63,7 @@ Equivalent to the standard **Instance.new()**, but let's you apply Properties wh
 |Properties|table (Dictionary)|Yes|The Properties to apply onto the Instance.|
 
 Code Sample:
+
 ```lua
 local Instance = require("./Instance")
 
@@ -56,11 +78,22 @@ local Part : Part = Instance:CreateInstance("Part", {
 print(Part.Name) --CreatedPart
 ```
 
+### SafeCheckProperty(Inst, Property) -> boolean
+
+Safely checks the Instance has the given Property
+
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|Inst|Instance|No|The Instance to check.|
+|Property|string|No|The Property Name to check.|
+
 ## Table
 
+Extends upon the table Library. Part of the BaseTypes Library.
 
 ### Await(tab, key, timeout) -> any
-> This method yields.
+>
+> *This method yields*.
 
 Waits for a value within a table per key and returns it.
 
@@ -70,25 +103,37 @@ Waits for a value within a table per key and returns it.
 |key|any|No|the key to wait for|
 |timeout|number|Yes|The amount of time to wait for until stopping execution|
 
-If no timeout parameter is provided, the thread will yield forever until the key is added to the table. After ~5 seconds of waiting, a warning will appear in the output informing you that a infinite yield is possible in the given table with the given key. 
-
+If no timeout parameter is provided, the thread will yield forever until the key is added to the table. After ~5 seconds of waiting, a warning will appear in the output informing you that a infinite yield is possible in the given table with the given key.
 
 Code Sample:
-```lua
-local Aux = require(game.ReplicatedStorage.Modules.Auxiliary)
-local Table = {"hi"}
 
-print(Aux.TableFunctions:Await(Table, 1)) --Output: hi
-print(Aux.TableFunctions:Await(Table, "KeyXYZ")) --Delayed Output (2s): I am a value.
-task.wait(2)
-Table.KeyXYZ = "I am a value." 
-print(Aux.TableFunctions:Await(Table, 5, 1)) --Output: nil
-print(Aux.TableFunctions:Await(Table, 10)) --Delayed Output (5s): Infinite yield possible with table Table and key 10
+```lua
+local Table = require("./Table")
+local Example = {"hi"}
+
+task.delay(2, function()
+    Example[2] = 5
+end)
+
+print(Table:Await(Example, 2)) --(2s delay) 5
+print(Table:Await(Example, 3, 2)) --No Output
+print(Table:Await(Example, 4)) --Infinite Yield possible with table Example and Key 4
 ```
+
+### DeepCopy(Table) -> Table
+
+Creates a independant copy of a table and returns it.
+
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|Table|table|No|The table to make a copy of.|
 
 ## String
 
+Extends upon the string Library. Part of the BaseTypes Library.
+
 ### GenerateID(Length, Set) -> string
+
 Generates a ID with a set of characters to use.
 
 |Argument|Type|Optional|Description|
@@ -97,6 +142,7 @@ Generates a ID with a set of characters to use.
 |Set|table (Array)|Yes|The Set of characters to use.|
 
 Code Sample:
+
 ```lua
 local String = require("./String")
 
@@ -108,93 +154,131 @@ local ID2 = String:GenerateID(7, CustomSet)
 print(ID1, ID2)
 ```
 
+### FormatTime(TimeInSeconds) -> string
+
+Returns a formatted string in this format: Seconds, Minutes, Hours
+
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|TimeInSeconds|number|No|N/A|
+
+### GetTableType(Table) -> "Array" | "Dictionary"
+
+Gets the table type.
+
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|Table|table|No|The table to check.|
+
+Code Sample:
+
+```lua
+local Table = require("./Table")
+
+print(Table:GetTableType({true, false, ""})) --Array
+print(Table:GetTableType({x = 1, y = false})) --Dictionary
+```
 
 ## Number
 
+Creates number functionality. Part of the BaseType Library.
 
-### NumberInRange() -> (boolean, number)
+### NumberInRange(ReferenceNumber, TargetNumber, MaxDistance) -> (boolean, number)
+
 This method is used to check the distance between 2 numbers.
 
 |Argument|Type|Optional|Description|
 |--------|----|--------|-----------|
 |ReferenceNumber|number|No|The base number.|
-|TargetNumber|number|No|The number to check the distance from the REferenceNumber to the TargetNumber.|
+|TargetNumber|number|No|The number to check the distance from the ReferenceNumber to the TargetNumber.|
 |MaxDistance|number|No|The maximal range between ReferenceNumber and TargetNumber which decides if the boolean is true or false.|
 
 <ins>Returns a boolean which indicates whether or not the TargetNumber is within the ReferenceNumber, and the distance.</ins>
 
 Code Sample:
-```lua
-local Aux = require(game.ReplicatedStorage.Auxillery.Auxiliary)
 
-local IsInRange, Distance = Aux:NumberInRange(50, 40, 1)
+```lua
+local Number = require("./Number")
+
+local IsInRange, Distance = Number:NumberInRange(50, 40, 1)
 
 print(IsInRange) --false
 print(Distance) --10
 ```
 
+### DecimalLock(Number, Decimals) -> number
+
+Decimal-locks a number.
+
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|Number|number|No|The number to decimal-lock.|
+|Decimals|number|No|the amount of decimals to keep.|
 
 ## Services
-A Component containing shortcuts to important Services.
+
+A Component containing shortcuts to important Services to prevent defining all Services repetitively.
 
 |Shortcut|Service|
 |--------|-------|
-|D|Debris|
-|L|Lighting|
+|P|Players|
 |RS|ReplicatedStorage|
 |RNS|RunService|
-|HTTP|HttpService|
 |RF|ReplicatedFirst|
-|||
-|||
-|||
-|||
-|||
-|||
-|||
+|SV|ServerStorage|
+|L|Lighting|
+|UIS|UserInputService|
+|CAS|ContextActionService|
+|COS|CollectionService|
+|TS|TweenService|
+|IS|InsertService|
+|MS|MarketplaceService|
+|HTTP|HttpService|
+|PS|PathfindingService|
+|PHY|PhysicsService|
+|D|Debris|
+|MES|MessagingService|
 
 # High Level
 
-## Auxiliary
-The purpose of this module is to make writing code easier. It contains functions which are useful for most scripts.
+## Hitbox
 
-### Auxiliary:GetServices()
-Instead of defining all services needed repetitively, you can use this method to get a <ins>table with services that are commonly used</ins>. You can edit it to your needs.
+A Component using Spatial Queries to spawn accurate Hitboxes. It switches from Outer to Inner Hitboxes vice versa, depending on the current Physics FPS.
 
-### Auxiliary:GenerateRandomID()
-Uses HttpService to obtain a randomly generated ID
+### Spawn(Args) -> ()
 
-<ins>Returns a string if HttpService is enabled, else it'll return nil.</ins>
+Spawns a Hitbox.
 
+<ins>Type Definitions</ins>
 
-### Auxiliary.TableFunctions:DeepCopy()
-Using table.clone() doesn't truly create a new independant table with the same values. Because of that, there's now a DeepCopy method. It also returns a copy of the table, but fully independant.
-
-Takes *1* Argument:
-
-- **val** (table): The table to copy
-
-
-<ins>Returns the copied table.</ins>
-
-### Auxiliary.TableFunctions:DeepCopyGetTableType()
-Tables come in 2 types: Arrays and Dictionaries. This method indicates which one of the 2 the table is.
-
-Takes *1* Argument:
-
-- **Table** (table): The table to check
-
-
-<ins>Returns a string indicating the type of the table</ins>
-
-Code Sample:
 ```lua
-local Aux = require(game.ReplicatedStorage.Auxillery.Auxiliary)
-
-local function PrintTableType(tab)
-    print(Aux.TableFunctions:GetTableType(tab))
-end
-
-PrintTableType({1, 2, 3}) --Output: Array
-PrintTableType({Hi = "Hello", Bye = "Cya"}) --Output: Dictionary
+type HitboxArguments = {
+	Origin : Model?,
+	Reference : BasePart | {CFrame : CFrame, Size : Vector3},
+	ForceMode : ("Inner" | "Outer")?,
+	OnHumanoidHit : (Humanoid : Humanoid) -> ()?, --If you want custom Humanoid handling, you may define a humanoid hit function. This overwrites the standard damage function.
+	
+	Debug : {
+		ShowHitbox : boolean?,
+		PrintProcessingTime : boolean?,
+		PrintEstimatedProcessTime : number? --Multiplies the Processing time by the number defined here and prints it.
+	}?,
+	
+	Stats : {
+		Linger : {
+			Duration : number,
+			Interval : number
+		}?,
+		Damage : number,
+		SelfHit : boolean? --Whether or not you can hit yourself with the Hitbox.
+	}
+}
 ```
+
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|Args|HitboxArguments|No|The Arguments to use for creating the Hitbox.|
+
+## ExtendedInstance
+
+Another Extension of the Instance Library.
