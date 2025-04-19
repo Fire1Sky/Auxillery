@@ -23,4 +23,9 @@ function NumberModule:BooleanToNumber(Boolean : boolean)
 	return BooleanOptions[tostring(Boolean)]
 end
 
+function NumberModule:DecimalLock(Number : number, Decimals : number)
+	local Mult = 10 ^ Decimals
+	return math.floor(Number * Mult) / Mult
+end
+
 return NumberModule
