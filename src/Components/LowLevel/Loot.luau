@@ -1,11 +1,24 @@
+--!strict
 local LootModule = {}
-local LootPoolClass = {}
+local LootPoolClass : LootPoolClass = {}
 LootPoolClass.__index = LootPoolClass
 
-export type Loot = {{Name : string, Rarity : number}}
+export type LootPool = typeof(setmetatable({} :: LootPoolObject, {} :: LootPoolClass))
+type LootPoolClass = {
+	__index : LootPoolClass,
+	GetRandomItem : (self : LootPool) -> ()
+}
+type LootPoolObject = {
+	LootPool : {
+		[number] : {
+			Name : string,
+			Rarity : number
+		}
+	}
+}
 
-function LootModule.new(Loot : Loot)
-	local LootPool = {LootPool = Loot}
+function LootModule.new(LootPool : {[number] : {Name : string, Rarity : number}})
+	local LootPool = {LootPool = LootPool}
 	setmetatable(LootPool, LootPoolClass)
 	return LootPool
 end
