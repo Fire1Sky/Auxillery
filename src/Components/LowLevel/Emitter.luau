@@ -46,10 +46,10 @@ function EmitterClass:Fire(Name : string, ... : any)
 	end
 	
 	for Index, EmitterConnection in pairs(Connections) do
-		EmitterConnection.Callback()
 		if EmitterConnection.Type == "Once" then
 			table.remove(Connections, Index)
 		end
+		task.spawn(EmitterConnection.Callback)
 	end
 end
 
