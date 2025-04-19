@@ -5,7 +5,6 @@ local HL = CS.HighLevel
 local l = require
 
 local Auxillery = {
-	AI = l(HL.AI),
 	Animate = l(HL.Animate),
 	Loot = l(LV.Loot),
 	Services = l(LV.Services),
