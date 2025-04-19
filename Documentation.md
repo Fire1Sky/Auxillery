@@ -1,129 +1,100 @@
-# Module Documentation
+The Auxillery Components are split in 2 Categories: High Level, and Low Level.
+Depending whether or not the Component has Dependencies, it goes either into Low Level or into High Level.
 
-## Animate
-This module's purpose is to store and recycle AnimationTracks loaded through this module.
+# Low Level
+These Components don't have any Dependencies and are often required in other High Level Components.
 
-Thats useful because if you call LoadAnimation() on an AnimationController itself, it'll give you a fresh AnimationTrack. Doesn't matter if you loaded the same one beforehand, it always reloads. To prevent reloading (and with that, delays inbetween already played animations), you can use this method instead. It'll return the already used AnimationTrack which completely gets rid of that delay.
+## Emitter
+A Component mimicing the Signals from the Roblox engine. It's very straight forward to use, and probably the most important Dependency within Auxillery.
 
-|Dependencies|
-|---|
-|[Auxiliary](https://github.com/Fire1Sky/Auxillery/blob/main/Auxillery/Auxiliary.luau)|
+### new() -> Emitter
+The constructor for a Emitter.
 
-### Animate:LoadAnimation()
-This is used to load Animations on a AnimationController. The AnimationTrack will then be saved within the module.
+### Emitter:Fire(...) -> ()
+Fires a **Event**, if existent. You may pass in Arguments in form of a **Tuple**.
 
+### Emitter:Connect(Event, Callback) -> Connection
+Connects a Callback to a **Event**. If the Event doesn't exist, it'll create one.
 
-Takes *3* Arguments:
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|Event|string|No|The Event to connect to.|
+|Callback|function|No|The Method to execute once the Event is fired. All Arguments parsed through **Emitter:Fire()** will sink into this method.|
 
-- **AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to load the animation upon.
+### Emitter:Once(Event, Callback) -> Connection
+Identical to **Emitter:Connect()**, with the exception that the callback given only runs once. The Connection gets terminated afterwards.
 
-- **Animation** (Animation, number): The Animation to load.
+### Connection:Disconnect() -> ()
+Removes the **Connection** from the **Event**, preventing it from getting called again.
 
-- **GivenArgs** (table?): The Arguments to use on the *AnimationTrack*. This table may take up to 4 Values:
-
-|Key|Type|Standard|Description|
-|---|---|---|---|
-|Priority|Enum.AnimationPriority|Action|Indicates the priority of the animation.|
-|TimePosition|number|0|Indicates where to start the animation from.|
-|Speed|number|1|Indicates the speed of the Animation.|
-|Looped|boolean|false|Indicated whether or not the Animation repeats playing itself.|
-
-> [!TIP]
-> The GivenArgs Argument is entirely optional.
+## Loot
 
 
-<ins>The Method returns the AnimationTrack.</ins>
+## Instance
 
 
-Code Sample:
-```lua
-local Animate = require(game.ReplicatedStorage.Auxillery.Animate)
-local Character = workspace.CharacterXYZ
+## Table
 
-local AnimationController = Character.Humanoid.Animator
-local Animation = Instance.new("Animation")
-Animation.AnimationId = "rbxassetid://987654321"
 
-for i = 1, 5 do
-    local Track = Animate:LoadAnimation(AnimationController, Animation, {Priority = Enum.AnimationPriority.Action})
-    Track:Play()
-    Track.Ended:Wait()
-end
+### Await(tab, key, timeout) -> any
+> This method yields.
 
-local Animation2 = 987654321
+Waits for a value within a table per key and returns it.
 
-for i = 1, 5 do
-    local Track = Animate:LoadAnimation(AnimationController, Animation)
-    Track:Play()
-    Track.Ended:Wait()
-end
-```
+|Argument|Type|Optional|Description|
+|--------|----|--------|-----------|
+|tab|table|No|The table to go through|
+|key|any|No|the key to wait for|
+|timeout|number|Yes|The amount of time to wait for until stopping execution|
 
-In the sample, we called the loadanimation method 10 times. Normally, this would load the animation 10 times. but instead, we only loaded it once and replayed it 9 times by using this specific method.
-
-### Animate:UnloadAnimation()
-In case you want to remove a AnimationTrack from the Cache, you use this method.
-
-Takes *2* Arguments:
-
-- **AnimationController** (Humanoid, Animator, AnimationController): The AnimationController to remove the animation from.
-
-- **Animation** (Animation, number): The Animation to unload.
+If no timeout parameter is provided, the thread will yield forever until the key is added to the table. After ~5 seconds of waiting, a warning will appear in the output informing you that a infinite yield is possible in the given table with the given key. 
 
 
 Code Sample:
 ```lua
-local Animate = require(game.ReplicatedStorage.Auxillery.Animate)
-local Character = workspace.CharacterXYZ
+local Aux = require(game.ReplicatedStorage.Modules.Auxiliary)
+local Table = {"hi"}
 
-local AnimationController = Character.Humanoid.Animator
-local Animation = Instance.new("Animation")
-Animation.AnimationId = "rbxassetid://987654321"
-
-for i = 1, 5 do
-    local Track = Animate:LoadAnimation(AnimationController, Animation, {Priority = Enum.AnimationPriority.Action})
-    Track:Play()
-    Track.Ended:Wait()
-end
-
---After you're done, you can just unload the Animation.
-Animate:UnloadAnimation(AnimationController, Animation)
+print(Aux.TableFunctions:Await(Table, 1)) --Output: hi
+print(Aux.TableFunctions:Await(Table, "KeyXYZ")) --Delayed Output (2s): I am a value.
+task.wait(2)
+Table.KeyXYZ = "I am a value."
+print(Aux.TableFunctions:Await(Table, 5, 1)) --Output: nil
+print(Aux.TableFunctions:Await(Table, 10)) --Delayed Output (5s): Infinite yield possible with table Table and key 10
 ```
+
+## String
+
+
+## Number
+
+
+## Services
+A Component containing shortcuts to important Services.
+
+|Shortcut|Service|
+|--------|-------|
+|D|Debris|
+|L|Lighting|
+|RS|ReplicatedStorage|
+|RNS|RunService|
+|HTTP|HttpService|
+|RF|ReplicatedFirst|
+|||
+|||
+|||
+|||
+|||
+|||
+|||
+
+# High Level
 
 ## Auxiliary
 The purpose of this module is to make writing code easier. It contains functions which are useful for most scripts.
 
 ### Auxiliary:GetServices()
 Instead of defining all services needed repetitively, you can use this method to get a <ins>table with services that are commonly used</ins>. You can edit it to your needs.
-
-I added a custom variable for bridgenet2, since its a direct upgrade to remotes. you may keep it at nil if unused.
-
-### Auxiliary:AssertWarn()
-Replicates the behaviour of assert(), but uses warn() instead to prevent errors.
-
-
-Takes *2* Arguments:
-
-- **Condition** (boolean): The condition to check.
-
-- **Msg** (string?): The message to display.
-
-
-If the condition given equals false or nil, the script will halt and the given msg will be printed.
-
-
-Code Sample:
-```lua
-local Aux = require(game.ReplicatedStorage.Auxillery.Auxiliary)
-
-local function PrintSomething(MessageToPrint : string)
-    Aux:AssertWarn(typeof(MessageToPrint) == "string", "MessageToPrint isn't a string")
-    print(MessageToPrint)
-end
-
-PrintSomething("Hi there") --Output: Hi there
-PrintSomething(true) --Output: MessageToPrint isn't a string
-```
 
 ### Auxiliary:GenerateRandomID()
 Uses HttpService to obtain a randomly generated ID
@@ -188,47 +159,3 @@ end
 PrintTableType({1, 2, 3}) --Output: Array
 PrintTableType({Hi = "Hello", Bye = "Cya"}) --Output: Dictionary
 ```
-
-### Auxiliary.TableFunctions:Await()
-> [!WARNING]
-> This method yields.
-
-Waits for a value within a table per key.
-
-Takes *3* Arguments:
-
-- **tab** (table): The table to go through
-- **key** (any): the key to wait for
-- **timeout** (number?): The amount of time to wait for maximally.
-
-If no timeout parameter is provided, the script will yield forever until the key is added to the table. After ~5 seconds of waiting, a warning will appear in the output informing you that a infinite yield is possible in the given table with the given key. 
-
-<ins>Returns the value if there is any.</ins>
-
-
-Code Sample:
-```lua
-local Aux = require(game.ReplicatedStorage.Modules.Auxiliary)
-local Table = {"hi"}
-
-print(Aux.TableFunctions:Await(Table, 1)) --Output: hi
-print(Aux.TableFunctions:Await(Table, "KeyXYZ")) --Delayed Output (2s): I am a value.
-task.wait(2)
-Table.KeyXYZ = "I am a value."
-print(Aux.TableFunctions:Await(Table, 5, 1)) --Output: nil
-print(Aux.TableFunctions:Await(Table, 10)) --Delayed Output (5s): Infinite yield possible with table Table and key 10
-```
-
-### Auxiliary.InstanceFunctions:GetDistance()
-<ins>Returns the Distance between 2 BaseParts.</ins>
-
-Takes *2* Arguments:
-
-- **Inst1** (BasePart): The first basepart to compare.
-
-- **Inst2** (BasePart): The second basepart to compare.
-
-## CustomSignals
-
-
-## CustomTypes
