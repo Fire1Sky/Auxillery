@@ -14,8 +14,8 @@ export type EmitterObject = {
 export type EmitterClass = {
 	__index : EmitterClass,
 	Fire : (self : Emitter, Name : string, ...any) -> (),
-	Connect : (self : Emitter, Name : string, Callback : (...any) -> (any)) -> Connection,
-	Once : (self : Emitter, Name : string, Callback : (...any) -> (any)) -> Connection
+	Connect : (self : Emitter, Name : string, Callback : (...any) -> ()) -> Connection,
+	Once : (self : Emitter, Name : string, Callback : (...any) -> ()) -> Connection
 }
 
 export type Connection = {
@@ -37,6 +37,20 @@ function EmitterModule.new() : Emitter
 	return Emitter
 end
 
+local function GetConnection(Emitter, CategoryName, ConnectionData) : Connection
+	local Connection : Connection = {}
+	
+	function Connection:Disconnect()
+		local Index = table.find(Emitter.Connections[CategoryName], ConnectionData)
+
+		if Index then
+			table.remove(Emitter.Connections[CategoryName], Index)
+		end
+	end
+
+	return Connection
+end
+
 --Fires a Event, if possible. Given Args will be sent to the Connection.
 function EmitterClass:Fire(Name : string, ... : any)
 	local Connections = self.Connections[Name]
@@ -49,7 +63,7 @@ function EmitterClass:Fire(Name : string, ... : any)
 		if EmitterConnection.Type == "Once" then
 			table.remove(Connections, Index)
 		end
-		task.spawn(EmitterConnection.Callback)
+		task.spawn(EmitterConnection.Callback, ...)
 	end
 end
 
@@ -62,18 +76,11 @@ function EmitterClass:Connect(Name : string, Callback : (...any) -> ()) : Connec
 		self.Connections[Name] = {}
 		Connections = self.Connections[Name]
 	end
+	local Data = {Callback = Callback, Type = "Connect"}
 	
-	table.insert(Connections, {Callback = Callback, Type = "Connect"})
+	table.insert(Connections, Data)
 	
-	return {
-		Disconnect = function(self)
-			local index = table.find(Connections, {Callback = Callback, Type = "Connect"})
-			
-			if index then
-				Connections[index] = nil
-			end
-		end
-	}
+	return GetConnection(self, Name, Data)
 end
 
 --Equivalent to Connect, but terminates the Connection after running once.
@@ -85,19 +92,11 @@ function EmitterClass:Once(Name : string, Callback : (...any) -> ()) : Connectio
 		self.Connections[Name] = {}
 		Connections = self.Connections[Name]
 	end
+	local Data = {Callback = Callback, Type = "Once"}
 
-	table.insert(Connections, {Callback = Callback, Type = "Once"})
+	table.insert(Connections, Data)
 
-	return {
-		--Disconnects the Connection from the Event.
-		Disconnect = function(self)
-			local index = table.find(Connections, {Callback = Callback, Type = "Once"})
-
-			if index then
-				Connections[index] = nil
-			end
-		end
-	}
+	return GetConnection(self, Name, Data)
 end
 
 return EmitterModule
