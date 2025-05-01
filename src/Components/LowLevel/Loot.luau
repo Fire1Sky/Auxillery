@@ -18,9 +18,9 @@ type LootPoolObject = {
 }
 
 function LootModule.new(LootPool : {[number] : {Name : string, Rarity : number}})
-	local LootPool = {LootPool = LootPool}
-	setmetatable(LootPool, LootPoolClass)
-	return LootPool
+	local LootPoolObject = {LootPool = LootPool}
+	setmetatable(LootPoolObject, LootPoolClass)
+	return LootPoolObject
 end
 
 function LootPoolClass:GetRandomItem()
