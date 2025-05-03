@@ -1,6 +1,3 @@
-The Auxillery Components are split in 2 Categories: High Level, and Low Level.
-Depending whether or not the Component has Dependencies, it goes either into Low Level or into High Level.
-
 # Low Level
 
 These Components don't have any Dependencies and are often required in other High Level Components.
