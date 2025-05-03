@@ -67,7 +67,7 @@ local function Summon(Args : HitboxArguments)
 			Humanoid:TakeDamage(Args.Stats.Damage)
 		end
 	end
-	assert(Callback) --mute typecheck engine
+	assert(Callback, "Humanoid Callback is invalid.") --mute typecheck engine
 	local HumanoidsDamaged = {}
 	
 	for _, Part in pairs(Parts) do
@@ -105,14 +105,14 @@ local function Summon(Args : HitboxArguments)
 end
 
 function HitboxModule:Spawn(Args : HitboxArguments)
-	assert(typeof(Args.Reference) == "Instance" or typeof(Args.Reference) == "table")
-	assert(Args.Stats)
-	assert(Args.Stats.Damage)
+	assert(typeof(Args.Reference) == "Instance" or typeof(Args.Reference) == "table", "Invalid Reference")
+	assert(Args.Stats, "Invalid Stats")
+	assert(Args.Stats.Damage, "Invalid Damage")
 	Summon(Args)
 	
 	if Args.Stats.Linger then
-		assert(Args.Stats.Linger.Duration)
-		assert(Args.Stats.Linger.Interval)
+		assert(Args.Stats.Linger.Duration, "Invalid Linger Duration")
+		assert(Args.Stats.Linger.Interval, "Invalid Linger Interval")
 		
 		local StartingTime = os.clock()
 		

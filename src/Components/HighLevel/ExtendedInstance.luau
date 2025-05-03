@@ -1,4 +1,3 @@
---!strict
 local ExtendedInstance = {}
 
 local Instance = require("../LowLevel/BaseTypes/Instance")
@@ -35,7 +34,7 @@ function ExtendedInstance:InstanceToTable(Parent : Instance, Table : {})
 
 	for _, Inst in pairs(Parent:GetChildren()) do
 		local Type = Inst.ClassName
-		if Types[Type] then
+		if Types[Type] and Inst:IsA("ValueBase") then
 			Table[Inst.Name] = Inst.Value
 		elseif Type == "Folder" then
 			local NewTab = {}
@@ -45,14 +44,14 @@ function ExtendedInstance:InstanceToTable(Parent : Instance, Table : {})
 	end
 end
 
-function ExtendedInstance:ConnectInstanceToTable(Parent : Instance, Table : {[string] : any})
+function ExtendedInstance:ConnectInstanceToTable(Parent : Folder, Table : {[string] : any})
 	assert(typeof(Parent) == "Instance", tostring(Parent).." is a invalid Parent.")
 	assert(typeof(Table) == "table", tostring(Table).." is a invalid table.")
 
 	for _, v in pairs(Parent:GetChildren()) do
 		if v:IsA("Folder") then
 			ExtendedInstance:ConnectInstanceToTable(v, Table[v.Name])
-		else
+		elseif v:IsA("ValueBase") then
 			local function OnValueChange()
 				Table[v.Name] = v.Value
 			end

@@ -1,4 +1,3 @@
---!strict
 local InstanceModule = {}
 
 --[[
@@ -30,7 +29,7 @@ function InstanceModule:SafeCheckProperty(Inst : any, Property : string) : boole
 	assert(typeof(Property) == "string", tostring(Property).." isn't a string.")
 
 	local function Check()
-		local P = Inst[Property]
+		local _ = Inst[Property]
 	end
 	local s = pcall(Check)
 	return s

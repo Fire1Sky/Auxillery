@@ -51,28 +51,40 @@ local Services = require("../Services")
 --end
 
 --Returns a string descriping if the given Table is a Array or a Dictionary.
-function TableModule:GetTableType(Table : {}) : string?
+function TableModule:GetTableType(Table : {}) : "Array" | "Dictionary"
 	assert(typeof(Table) == "table", tostring(Table).." isn't a table.")
-
-	local Result = ""
 	local Count = 0
 
 	for _, _ in Table do
 		Count += 1
 	end
 
-	if #Table == Count then
-		Result = "Array"
-	else 
-		Result = "Dictionary"
+	return if #Table == Count then "Array" else "Dictionary"
+end
+
+function TableModule:CombineTables(...)
+	local Result = {}
+
+	for _, Table in pairs(table.pack(...)) do
+		local TableType = TableModule:GetTableType(Table)
+
+		if TableType == "Array" then
+			for _, Value in pairs(Table) do
+				table.insert(Result, Value)
+			end
+		else
+			for Index, Value in pairs(Table) do
+				Result[Index] = Value
+			end
+		end
 	end
 
 	return Result
 end
 
 --Used to correctly clone tables.
-function TableModule:DeepCopy(val : any) : any
-	local copy = nil
+function TableModule:DeepCopy<T>(val : any) : T
+	local copy : any = nil
 	if typeof(val) == "table" then
 		copy = {}
 		for n, v in pairs(val) do
@@ -132,7 +144,7 @@ function TableModule:Clear(Table : any, Settings : {ClearNested : boolean?, Disc
 		setmetatable(Table, nil)
 	else
 		local function Clear(Tab)
-			for Index, Value in pairs(Table) do
+			for Index, Value in pairs(Tab) do
 				Table[Index] = nil
 
 				if typeof(Value) == "RBXScriptConnection" then

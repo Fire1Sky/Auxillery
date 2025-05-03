@@ -2,22 +2,20 @@ local CS = script.Components
 local LV = CS.LowLevel
 local HL = CS.HighLevel
 
-local l = require
 
 local Auxillery = {
-	Animate = l(HL.Animate),
-	Loot = l(LV.Loot),
-	Services = l(LV.Services),
-	Sound = l(HL.Sound),
-	CustomSignals = l(HL.HeartbeatSignals),
-	Instance = l(LV.BaseTypes.Instance),
-	Table = l(LV.BaseTypes.Table),
-	Number = l(LV.BaseTypes.Number),
-	String = l(LV.BaseTypes.String),
-	Emitter = l(LV.Emitter),
-	Network = l(HL.Network),
-	ExtendedInstance = l(HL.ExtendedInstance),
-	Hitbox = l(HL.Hitbox)
+	Animate = require(HL.Animate),
+	Loot = require(LV.Loot),
+	Services = require(LV.Services),
+	Sound = require(HL.Sound),
+	CustomSignals = require(HL.HeartbeatSignals),
+	Instance = require(LV.BaseTypes.Instance),
+	Table = require(LV.BaseTypes.Table),
+	Number = require(LV.BaseTypes.Number),
+	String = require(LV.BaseTypes.String),
+	Emitter = require(LV.Emitter),
+	ExtendedInstance = require(HL.ExtendedInstance),
+	Hitbox = require(HL.Hitbox)
 }
 
 local IsClient = game:GetService("RunService"):IsClient()

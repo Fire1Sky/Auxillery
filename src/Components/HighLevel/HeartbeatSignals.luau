@@ -7,7 +7,6 @@ local CustomSignals = {}
 
 local Services = require("../LowLevel/Services")
 local InstanceModule = require("../LowLevel/BaseTypes/Instance")
-local TableModule = require("../LowLevel/BaseTypes/Table")
 
 local CustomSignalClass = {}
 CustomSignalClass.__index = CustomSignalClass
@@ -40,8 +39,7 @@ end
 
 function CustomSignalClass:Set(Usage : string, Value : any)
 	if Usage == "PropertyCheck" then
-		assert(typeof(Value) == "table" and TableModule:Compare({["Instance"] = "Instance", Property = "string"}, Value), tostring(Value).." isn't a valid table.")
-		assert(InstanceModule:SaveCheckProperty(Value.Instance, Value.Property), tostring(Value.Property).." isn't a valid Property of "..tostring(Value.Instance))
+		assert(InstanceModule:SafeCheckProperty(Value.Instance, Value.Property), tostring(Value.Property).." isn't a valid Property of "..tostring(Value.Instance))
 		
 		self.PreviousProperty = Value.Instance[Value.Property]
 		local function OnHeartbeat()

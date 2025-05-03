@@ -8,7 +8,7 @@ function StringModule:GenerateRandomId(length : number?) : string
 	}
 
 	local ID = ""
-	for i = 1, length or 10 do
+	for _ = 1, length or 10 do
 		local isupper = math.random(1,2) == 1
 
 		if isupper then
