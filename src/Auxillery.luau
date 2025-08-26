@@ -1,37 +1,25 @@
 local CS = script.Components
-local LV = CS.LowLevel
-local HL = CS.HighLevel
+local Standalone = CS.Standalone
+local Dependants = CS.Dependants
 
 
 local Auxillery = {
-	Animate = require(HL.Animate),
-	Loot = require(LV.Loot),
-	Services = require(LV.Services),
-	Sound = require(HL.Sound),
-	CustomSignals = require(HL.HeartbeatSignals),
-	Instance = require(LV.BaseTypes.Instance),
-	Table = require(LV.BaseTypes.Table),
-	Number = require(LV.BaseTypes.Number),
-	String = require(LV.BaseTypes.String),
-	Emitter = require(LV.Emitter),
-	ExtendedInstance = require(HL.ExtendedInstance),
-	Hitbox = require(HL.Hitbox)
+	Animate = require(Standalone.Animate),
+	Loot = require(Standalone.Loot),
+	Services = require(Standalone.Services),
+	Instance = require(Standalone.BaseTypes.Instance),
+	Table = require(Standalone.BaseTypes.Table),
+	Number = require(Standalone.BaseTypes.Number),
+	String = require(Standalone.BaseTypes.String),
+	Emitter = require(Standalone.Emitter),
+	Math = require(Standalone.Math),
+	Input = require(Standalone.Input),
+
+	Sound = require(Dependants.Sound),
+	CustomSignals = require(Dependants.HeartbeatSignals),
+	ExtendedInstance = require(Dependants.ExtendedInstance),
+	Hitbox = require(Dependants.Hitbox),
+	Keybinding = require(Dependants.Keybinding)
 }
-
-local IsClient = game:GetService("RunService"):IsClient()
-
-for _, v in pairs(CS:GetDescendants()) do
-	if v:IsA("ModuleScript") then
-		local Visibility = v:GetAttribute("AuxVisibility")
-		
-		if IsClient and Visibility == "Server" then
-			v:Destroy()
-		end
-		
-		if (not IsClient) and Visibility == "Client" then 
-			v:Destroy()
-		end
-	end
-end
 
 return Auxillery
