@@ -1,6 +1,6 @@
 local ExtendedInstance = {}
 
-local Instance = require("../LowLevel/BaseTypes/Instance")
+local Instance = require("../Standalone/BaseTypes/Instance")
 
 function ExtendedInstance:TableToInstance(Parent : Instance?, Table : {any})
 	assert(typeof(Parent) == "Instance", tostring(Parent).." is a invalid Parent.")

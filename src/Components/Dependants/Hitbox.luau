@@ -11,7 +11,10 @@ local DynamicModeFPSTarget = 40
 
 export type HitboxArguments = {
 	Origin: Model?,
-	Reference: BasePart | { CFrame: CFrame, Size: Vector3 },
+	
+	Reference: BasePart | {CFrame: CFrame},
+	Size: Vector3?,
+
 	ForceMode: ("Inner" | "Outer")?,
 	OnHumanoidHit: (Humanoid: Humanoid) -> ()?,
 	AdditionalCheck: ((Humanoid: Humanoid) -> boolean)?,
@@ -25,7 +28,7 @@ export type HitboxArguments = {
 	Stats: {
 		Linger: {
 			Duration: number,
-			Interval: number,
+			Interval: number
 		}?,
 		Damage: number?,
 		SelfHit: boolean?,
@@ -44,17 +47,21 @@ local function UpdateDefaultAccuracyMode()
 end
 
 local function GetPartsByMode(
-	Reference: BasePart | { CFrame: CFrame, Size: Vector3 },
+	Reference: BasePart | { CFrame: CFrame},
 	Params: OverlapParams?,
+	Size: Vector3?,
 	ForceMode: ("Outer" | "Inner")?
 ): { BasePart }
+
 	if
 		not IsDynamicModeEnabled
 		or typeof(Reference) == "table"
 		or ForceMode == "Outer"
 		or DefaultAccuracyMode == "Outer"
 	then
-		return workspace:GetPartBoundsInBox(Reference.CFrame, Reference.Size, Params)
+		return workspace:GetPartBoundsInBox(Reference.CFrame, Size, Params)
+	elseif typeof(Reference) == "Instance" and Size then
+		return workspace:GetPartBoundsInBox(Reference.CFrame, Size)
 	end
 
 	return workspace:GetPartsInPart(Reference, Params)
@@ -124,7 +131,7 @@ local function Summon(Args: HitboxArguments): { Humanoid }
 				Instance:CreateInstance("Part", {
 					Parent = workspace,
 					CFrame = Args.Reference.CFrame,
-					Size = Args.Reference.Size,
+					Size = Args.Size,
 					Transparency = 0.5,
 					Color = Color3.fromRGB(255, 0, 0),
 					Material = Enum.Material.SmoothPlastic,
@@ -160,7 +167,8 @@ function HitboxModule.ToggleDynamicMode(Enabled: boolean, FPSTarget: number?)
 	end
 end
 
-function HitboxModule.Spawn(Args: HitboxArguments): { Humanoid }?
+function HitboxModule.Spawn(Args: HitboxArguments): { Humanoid }
+	assert(typeof(Args) == "table", "No Arguments given")
 	assert(typeof(Args.Reference) == "Instance" or typeof(Args.Reference) == "table", "Invalid Reference")
 	assert(Args.Stats, "Invalid Stats")
 
@@ -172,13 +180,17 @@ function HitboxModule.Spawn(Args: HitboxArguments): { Humanoid }?
 
 		while (os.clock() - StartingTime) < Args.Stats.Linger.Duration do
 			task.wait(Args.Stats.Linger.Interval)
-			Summon(Args)
+			local Hits = Summon(Args)
+
+			if #Hits ~= 0 then
+				return Hits
+			end
 		end
+
+		return {}
 	else
 		return Summon(Args)
 	end
-
-	return nil
 end
 
 return HitboxModule

@@ -5,8 +5,8 @@
 ]]
 local CustomSignals = {}
 
-local Services = require("../LowLevel/Services")
-local InstanceModule = require("../LowLevel/BaseTypes/Instance")
+local Services = require("../Standalone/Services")
+local InstanceModule = require("../Standalone/BaseTypes/Instance")
 
 local CustomSignalClass = {}
 CustomSignalClass.__index = CustomSignalClass

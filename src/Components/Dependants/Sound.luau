@@ -3,7 +3,7 @@ local SoundModule = {}
 local SoundClass : SoundClass = {}
 SoundClass.__index = SoundClass
 
-local Emitter = require("../LowLevel/Emitter")
+local Emitter = require("../Standalone/Emitter")
 
 local GlobalEmitter = Emitter.new()
 SoundModule.GlobalEmitter = GlobalEmitter
