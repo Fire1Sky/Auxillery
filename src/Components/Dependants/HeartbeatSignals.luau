@@ -12,17 +12,17 @@ local CustomSignalClass = {}
 CustomSignalClass.__index = CustomSignalClass
 
 export type CustomSignalClass = {
-	Set : (self : Signal, Usage : string, Value : any) -> (),
-	Destroy : () -> ()
+	Set: (self : Signal, Usage : string, Value : any) -> (),
+	Destroy: () -> ()
 }
 
 export type Signal = typeof(setmetatable({} :: SignalObject, CustomSignalClass))
 
 export type SignalObject = {
-	OnEvent : RBXScriptSignal | any,
-	Bindable : BindableEvent,
-	PreviousProperty : any,
-	OnHeartbeat : RBXScriptConnection?,
+	OnEvent: RBXScriptSignal | any,
+	Bindable: BindableEvent,
+	PreviousProperty: any,
+	OnHeartbeat: RBXScriptConnection?,
 }
 
 function CustomSignals.new() : Signal

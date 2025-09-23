@@ -5,7 +5,7 @@ SoundClass.__index = SoundClass
 
 local Emitter = require("../Standalone/Emitter")
 
-local GlobalEmitter = Emitter.new()
+local GlobalEmitter = Emitter.newMulti()
 SoundModule.GlobalEmitter = GlobalEmitter
 
 export type SoundObject = typeof(

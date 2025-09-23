@@ -1,6 +1,10 @@
 local EmitterCreator = {}
 
---[[TYPECHECKING]]--
+--[[
+    [------------]
+     TYPECHECKING
+    [------------]
+]]
 
 type Connection = {
     Disconnect: (self: Connection) -> ()
@@ -36,7 +40,11 @@ type MultiChannelEmitter = typeof(setmetatable({} :: {
 }
 }, {} :: MultiChannelMeta))
 
---[[LOCAL FUNCTIONS]]--
+--[[
+    [---------------]
+     LOCAL FUNCTIONS
+    [---------------]
+]]
 
 local function CreateConnection(Connections: {() -> ()}, Lookup: () -> ()): Connection
     local Connection = {}
@@ -48,7 +56,11 @@ local function CreateConnection(Connections: {() -> ()}, Lookup: () -> ()): Conn
     return Connection
 end
 
---[[META]]--
+--[[
+    [----]
+     META
+    [----]
+]]
 
 local SingleChannelMeta = {} :: SingleChannelMeta<>
 SingleChannelMeta.__index = SingleChannelMeta
@@ -137,7 +149,11 @@ function MultiChannelMeta:Wait(Name: string): ...any
 	return coroutine.yield()
 end
 
---[[CONSTRUCTORS]]--
+--[[
+    [------------]
+     CONSTRUCTORS
+    [------------]
+]]
 
 --Creates a one-channel Emitter.
 function EmitterCreator.newSingle<Format...>(...: Format...): SingleChannelEmitter<Format...>
