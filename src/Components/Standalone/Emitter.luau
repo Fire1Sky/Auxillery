@@ -1,5 +1,3 @@
-local EmitterCreator = {}
-
 --[[
     [------------]
      TYPECHECKING
@@ -26,7 +24,7 @@ type MultiChannelMeta = {
 	Wait: (self: MultiChannelEmitter, Name: string) -> ...any
 }
 
-type SingleChannelEmitter<T...> = typeof(setmetatable({} :: {
+export type SingleChannelEmitter<T...> = typeof(setmetatable({} :: {
     Connections: {
         (T...) -> ()
     }
@@ -39,6 +37,11 @@ type MultiChannelEmitter = typeof(setmetatable({} :: {
     }
 }
 }, {} :: MultiChannelMeta))
+
+type Emitters = {
+    newSingle: <T...>() -> SingleChannelEmitter<T...>,
+    newMulti: () -> MultiChannelEmitter
+}
 
 --[[
     [---------------]
@@ -156,13 +159,16 @@ end
 ]]
 
 --Creates a one-channel Emitter.
-function EmitterCreator.newSingle<Format...>(...: Format...): SingleChannelEmitter<Format...>
+local function newSingle<Format...>(): SingleChannelEmitter<Format...>
     return setmetatable({Connections = {}}, SingleChannelMeta)
 end
 
 --Creates a multi-channel Emitter.
-function EmitterCreator.newMulti(): MultiChannelEmitter
+local function newMulti(): MultiChannelEmitter
     return setmetatable({Connections = {}}, MultiChannelMeta)
 end
 
-return EmitterCreator
+return (table.freeze({
+    newMulti = newMulti,
+    newSingle = newSingle
+}) :: any) :: Emitters
