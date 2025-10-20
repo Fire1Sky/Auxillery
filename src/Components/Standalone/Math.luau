@@ -1,12 +1,5 @@
 local Math = {}
 
-function Math.LerpUDim2(A: UDim2, B: UDim2, T: number): UDim2
-	local X = math.lerp(A.X.Scale, B.X.Scale, T)
-	local Y = math.lerp(A.Y.Scale, B.Y.Scale, T)
-
-	return UDim2.fromScale(X, Y)
-end
-
 function Math.GetOrientationOfCFrame(CF: CFrame): Vector3
 	local _sx, _sy, _sz, m00, m01, m02, _m10, _m11, m12, _m20, _m21, m22 = CF:GetComponents()
 
