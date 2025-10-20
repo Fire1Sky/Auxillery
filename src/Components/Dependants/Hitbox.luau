@@ -1,23 +1,20 @@
 --!strict
 local HitboxModule = {}
-local DefaultAccuracyMode: "Inner" | "Outer" = "Inner"
 
 local Instance = require("../Standalone/BaseTypes/Instance")
 local Services = require("../Standalone/Services")
 local String = require("../Standalone/BaseTypes/String")
 
-local IsDynamicModeEnabled = false
-local DynamicModeFPSTarget = 40
-
 export type HitboxArguments = {
 	Origin: Model?,
 	
-	Reference: BasePart | {CFrame: CFrame},
+	Reference: BasePart | CFrame | {Reference: BasePart, Offset: CFrame},
 	Size: Vector3?,
 
-	ForceMode: ("Inner" | "Outer")?,
 	OnHumanoidHit: (Humanoid: Humanoid) -> ()?,
 	AdditionalCheck: ((Humanoid: Humanoid) -> boolean)?,
+
+	OverlapParams: OverlapParams?,
 
 	Debug: {
 		ShowHitbox: boolean?,
@@ -36,45 +33,24 @@ export type HitboxArguments = {
 	},
 }
 
-local function UpdateDefaultAccuracyMode()
-	local FPS = workspace:GetRealPhysicsFPS()
-
-	if FPS >= DynamicModeFPSTarget then
-		DefaultAccuracyMode = "Inner"
-	else
-		DefaultAccuracyMode = "Outer"
-	end
-end
-
 local function GetPartsByMode(
-	Reference: BasePart | { CFrame: CFrame},
+	Reference: BasePart | CFrame | {Reference: BasePart, Offset: CFrame},
 	Params: OverlapParams?,
-	Size: Vector3?,
-	ForceMode: ("Outer" | "Inner")?
-): { BasePart }
-
-	if
-		not IsDynamicModeEnabled
-		or typeof(Reference) == "table"
-		or ForceMode == "Outer"
-		or DefaultAccuracyMode == "Outer"
-	then
-		return workspace:GetPartBoundsInBox(Reference.CFrame, Size, Params)
-	elseif typeof(Reference) == "Instance" and Size then
-		return workspace:GetPartBoundsInBox(Reference.CFrame, Size)
+	Size: Vector3?
+): ({ BasePart }, CFrame)
+	if typeof(Reference) == "Instance" then
+		return workspace:GetPartBoundsInBox(Reference.CFrame, Size, Params), Reference.CFrame
+	elseif typeof(Reference) == "CFrame" then
+		return workspace:GetPartBoundsInBox(Reference, Size, Params), Reference
+	else
+		return workspace:GetPartBoundsInBox(Reference.Reference.CFrame * Reference.Offset, Size, Params), Reference.Reference.CFrame * Reference.Offset
 	end
-
-	return workspace:GetPartsInPart(Reference, Params)
 end
 
 local function Summon(Args: HitboxArguments): { Humanoid }
 	local StartTime = os.clock()
 
-	if IsDynamicModeEnabled then
-		UpdateDefaultAccuracyMode()
-	end
-
-	local Parts = GetPartsByMode(Args.Reference, nil, Args.ForceMode or DefaultAccuracyMode)
+	local Parts, CF = GetPartsByMode(Args.Reference, Args.OverlapParams, Args.Size)
 	local Callback = Args.OnHumanoidHit
 
 	if typeof(Callback) ~= "function" and Args.Stats.DealDamage and Args.Stats.Damage then
@@ -130,7 +106,7 @@ local function Summon(Args: HitboxArguments): { Humanoid }
 			Services.D:AddItem(
 				Instance:CreateInstance("Part", {
 					Parent = workspace,
-					CFrame = Args.Reference.CFrame,
+					CFrame = CF,
 					Size = Args.Size,
 					Transparency = 0.5,
 					Color = Color3.fromRGB(255, 0, 0),
@@ -159,17 +135,9 @@ local function Summon(Args: HitboxArguments): { Humanoid }
 	return HumanoidsHit
 end
 
-function HitboxModule.ToggleDynamicMode(Enabled: boolean, FPSTarget: number?)
-	IsDynamicModeEnabled = Enabled
-
-	if FPSTarget then
-		DynamicModeFPSTarget = FPSTarget
-	end
-end
-
 function HitboxModule.Spawn(Args: HitboxArguments): { Humanoid }
 	assert(typeof(Args) == "table", "No Arguments given")
-	assert(typeof(Args.Reference) == "Instance" or typeof(Args.Reference) == "table", "Invalid Reference")
+	assert(typeof(Args.Reference) == "Instance" or typeof(Args.Reference) == "table" or typeof(Args.Reference) == "CFrame", "Invalid Reference")
 	assert(Args.Stats, "Invalid Stats")
 
 	if Args.Stats.Linger then
