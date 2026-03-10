@@ -1,0 +1,24 @@
+{
+  "name": "Auxillery",
+
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+        "$className": "ReplicatedStorage",
+
+        "Libraries": {
+            "$className": "Folder",
+
+            "Auxillery": {
+                "$path": "./Auxillery.lua",
+
+                "Components": {
+                  "$path": "./Components",
+                  "$className": "Folder"
+                }
+            }
+        }
+    }
+  }
+}

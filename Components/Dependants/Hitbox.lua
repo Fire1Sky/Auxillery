@@ -27,9 +27,7 @@ export type HitboxArguments = {
 			Duration: number,
 			Interval: number
 		}?,
-		Damage: number?,
 		SelfHit: boolean?,
-		DealDamage: boolean?,
 	},
 }
 
@@ -53,11 +51,6 @@ local function Summon(Args: HitboxArguments): { Humanoid }
 	local Parts, CF = GetPartsByMode(Args.Reference, Args.OverlapParams, Args.Size)
 	local Callback = Args.OnHumanoidHit
 
-	if typeof(Callback) ~= "function" and Args.Stats.DealDamage and Args.Stats.Damage then
-		Callback = function(Humanoid: Humanoid)
-			Humanoid:TakeDamage(Args.Stats.Damage)
-		end
-	end
 	local HumanoidsHit = {}
 
 	for _, Part in pairs(Parts) do
@@ -141,13 +134,14 @@ function HitboxModule.Spawn(Args: HitboxArguments): { Humanoid }
 	assert(Args.Stats, "Invalid Stats")
 
 	if Args.Stats.Linger then
-		assert(Args.Stats.Linger.Duration, "Invalid Linger Duration")
-		assert(Args.Stats.Linger.Interval, "Invalid Linger Interval")
+		assert(Args.Stats.Linger.Duration, `Invalid Linger Duration: {tostring(Args.Stats.Linger.Duration)}`)
+		assert(Args.Stats.Linger.Interval, `Invalid Linger Interval: {tostring(Args.Stats.Linger.Interval)}`)
 
 		local StartingTime = os.clock()
 
 		while (os.clock() - StartingTime) < Args.Stats.Linger.Duration do
 			task.wait(Args.Stats.Linger.Interval)
+
 			local Hits = Summon(Args)
 
 			if #Hits ~= 0 then

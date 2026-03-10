@@ -3,12 +3,18 @@ local Instance = require("../Standalone/BaseTypes/Instance")
 
 export type Action = InputAction & { GamepadBinding: InputBinding, KeyboardBinding: InputBinding }
 
+local Contexts = Instance:CreateInstance("Folder", {Parent = script, Name = "Contexts"}) :: Folder
+local ActionTemplate = Instance:CreateInstance("InputAction", {Parent = script, Name = "ActionTemplate"})
+
+Instance:CreateInstance("InputBinding", {Parent = ActionTemplate, Name = "GamepadBinding"})
+Instance:CreateInstance("InputBinding", {Parent = ActionTemplate, Name = "KeyboardBinding"})
+
 local function GetContext(ContextName: string): InputContext
-	local Context: InputContext = script.Contexts:FindFirstChild(ContextName)
+	local Context: InputContext = Contexts:FindFirstChild(ContextName)
 
 	if not Context then
 		Context = Instance:CreateInstance("InputContext", {
-			Parent = script.Contexts,
+			Parent = Contexts,
 			Name = ContextName,
 			Enabled = false,
 		})
@@ -41,11 +47,11 @@ function Keybinding.ToggleContext(Context: string, State: boolean)
 	ContextObject.Enabled = State
 end
 
-function Keybinding.AddKeybind(Context: string, Action: string, Name: string, Binding: Enum.KeyCode)
+function Keybinding.AddKeybind(Context: string, Action: string, Name: string, Binding: Enum.KeyCode): InputBinding
 	local ContextObject = GetContext(Context)
 	local ActionObject: Action = GetAction(ContextObject, Action)
 
-	Instance:CreateInstance("InputBinding", {
+	return Instance:CreateInstance("InputBinding", {
 		Name = Name,
 		KeyCode = Binding,
 		Parent = ActionObject,
