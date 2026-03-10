@@ -5,7 +5,7 @@ end
 
 local UIS = game:GetService("UserInputService")
 local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
-local Emitter = require(script.Parent.Emitter)
+local Emitter = require("./Emitter")
 
 function InputModule.Get2DMousePosition()
 	return Vector2.new(Mouse.X / Mouse.ViewSizeX, Mouse.Y / Mouse.ViewSizeY)
