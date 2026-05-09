@@ -4,23 +4,29 @@ if game:GetService("RunService"):IsServer() then
 end
 
 local UIS = game:GetService("UserInputService")
-local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
 local Emitter = require("./Emitter")
 
+local Camera = workspace.CurrentCamera
+
 function InputModule.Get2DMousePosition()
-	return Vector2.new(Mouse.X / Mouse.ViewSizeX, Mouse.Y / Mouse.ViewSizeY)
+	return UIS:GetMouseLocation() / Camera.ViewportSize
 end
 
 --[[
 	Waits for the Player to press the keys given. If no keys are given, it'll wait for any key.
+	Parameters:
+		Timeout: Timeout for when no key is pressed to avoid infinite yield.
+		OnRelease: Whether the function should yield until the key is pressed or released
 
 	- Yields
 ]]
-function InputModule.AwaitKey(Keys: {Enum.KeyCode}?, Timeout: number?): Enum.KeyCode?
+function InputModule.AwaitKey(Keys: {Enum.KeyCode}?, Timeout: number?, OnRelease: boolean?): Enum.KeyCode?
 	local Connection: RBXScriptConnection
 	local OnPress = Emitter.newSingle()
 
-	Connection = UIS.InputBegan:Connect(function(Input, GPE)
+	local Event = if OnRelease then "InputEnded" else "InputBegan"
+
+	Connection = UIS[Event]:Connect(function(Input, GPE)
 		if GPE then return end
 
 		if Keys then

@@ -9,7 +9,9 @@ local DefaultArgs = {
 	Looped = false,
 }
 
-function Animate:LoadAnimation(
+local Constants = require("../Constants")
+
+function Animate.LoadAnimation(
 	Animator: Animator,
 	Animation: Animation,
 	GivenArgs: {
@@ -19,10 +21,10 @@ function Animate:LoadAnimation(
 		TimePosition: number?,
 	}?
 ): AnimationTrack
-	assert(typeof(Animator) == "Instance" and Animator:IsA("Animator"), tostring(Animator) .. " isn't a Instance.")
+	assert(typeof(Animator) == "Instance" and Animator:IsA("Animator"), Constants.INVALID_TYPE:format("Animator", (typeof(Animator) == "Instance" and Animator.ClassName) or typeof(Animator)))
 	assert(
 		(typeof(Animation) == "Instance" and Animation:IsA("Animation")),
-		tostring(Animation) .. " isn't a Animation."
+		Constants.INVALID_TYPE:format("Animation", (typeof(Animation) == "Instance" and Animation.ClassName) or typeof(Animation))
 	)
 
 	local Args = GivenArgs or DefaultArgs

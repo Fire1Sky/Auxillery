@@ -24,6 +24,24 @@ function InstanceModule:CreateInstance<T>(Type : string, Properties : {[string] 
 	return NewInstance
 end
 
+function InstanceModule.FindHumanoidFromPart(Part: BasePart | Model): Humanoid?
+	assert(Part and (Part:IsA("BasePart") or Part:IsA("Model")), `Invalid Part (Got {Part})`)
+
+	local Model = Part:FindFirstAncestorOfClass("Model")
+
+	if not Model then
+		return
+	end
+
+	local Humanoid = Model:FindFirstChildOfClass("Humanoid")
+
+	if not Humanoid then
+		return InstanceModule.FindHumanoidFromPart(Model)
+	end
+
+	return Humanoid
+end
+
 --Checks if a Instance has the given Property.
 function InstanceModule:SafeCheckProperty(Inst : any, Property : string) : boolean
 	assert(typeof(Property) == "string", tostring(Property).." isn't a string.")

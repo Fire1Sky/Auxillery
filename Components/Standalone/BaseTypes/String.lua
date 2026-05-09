@@ -1,7 +1,7 @@
 --!strict
 local StringModule = {}
 
-function StringModule:GenerateRandomId(length : number?) : string
+function StringModule.GenerateRandomId(length : number?) : string
 	local UsableSymbols = {
 		"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
 		"0","1","2","3","4","5","6","7","8","9"
@@ -21,7 +21,14 @@ function StringModule:GenerateRandomId(length : number?) : string
 	return ID
 end
 
-function StringModule:FormatTime(TimeInSeconds : number) : string
+function StringModule.NormalizeString(String: string, StartAtOccurenceOf: string): string
+	local Start = string.find(String, StartAtOccurenceOf)
+	local Normalized = string.sub(String, Start or 0)
+	
+	return Normalized
+end
+
+function StringModule.FormatTime(TimeInSeconds : number) : string
 	TimeInSeconds = math.round(TimeInSeconds)
 	local min, h = 0, 0
 	

@@ -2,7 +2,7 @@ local ExtendedInstance = {}
 
 local Instance = require("../Standalone/BaseTypes/Instance")
 
-function ExtendedInstance:TableToInstance(Parent : Instance?, Table : {any})
+function ExtendedInstance.TableToInstance(Parent : Instance?, Table : {any})
 	assert(typeof(Parent) == "Instance", tostring(Parent).." is a invalid Parent.")
 	assert(typeof(Table) == "table", tostring(Table).." is a invalid table.")
 	local Types = {
@@ -17,12 +17,12 @@ function ExtendedInstance:TableToInstance(Parent : Instance?, Table : {any})
 		if Types[Type] then
 			Instance:CreateInstance(Types[Type], {Parent = Parent, Name = Name, Value = Value})
 		elseif Type == "table" then
-			ExtendedInstance:TableToInstance(Instance:CreateInstance("Folder", {Parent = Parent, Name = Name}), Value)
+			ExtendedInstance.TableToInstance(Instance:CreateInstance("Folder", {Parent = Parent, Name = Name}), Value)
 		end
 	end
 end
 
-function ExtendedInstance:InstanceToTable(Parent : Instance, Table : {})
+function ExtendedInstance.InstanceToTable(Parent : Instance, Table : {})
 	assert(typeof(Parent) == "Instance", tostring(Parent).." is a invalid Parent.")
 	assert(typeof(Table) == "table", tostring(Table).." is a invalid table.")
 	local Types = {
@@ -39,18 +39,18 @@ function ExtendedInstance:InstanceToTable(Parent : Instance, Table : {})
 		elseif Type == "Folder" then
 			local NewTab = {}
 			Table[Inst.Name] = NewTab
-			ExtendedInstance:InstanceToTable(Inst, NewTab)
+			ExtendedInstance.InstanceToTable(Inst, NewTab)
 		end
 	end
 end
 
-function ExtendedInstance:ConnectInstanceToTable(Parent : Folder, Table : {[string] : any})
+function ExtendedInstance.ConnectInstanceToTable(Parent : Folder, Table : {[string] : any})
 	assert(typeof(Parent) == "Instance", tostring(Parent).." is a invalid Parent.")
 	assert(typeof(Table) == "table", tostring(Table).." is a invalid table.")
 
 	for _, v in pairs(Parent:GetChildren()) do
 		if v:IsA("Folder") then
-			ExtendedInstance:ConnectInstanceToTable(v, Table[v.Name])
+			ExtendedInstance.ConnectInstanceToTable(v, Table[v.Name])
 		elseif v:IsA("ValueBase") then
 			local function OnValueChange()
 				Table[v.Name] = v.Value

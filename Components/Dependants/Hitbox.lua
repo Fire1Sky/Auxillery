@@ -31,6 +31,17 @@ export type HitboxArguments = {
 	},
 }
 
+export type RaycastArguments = {
+	Part: BasePart,
+
+	Size: number?,
+	Duration: number,
+	Offset: Vector3,
+	DebugEnabled: boolean?,
+
+	RaycastParams: RaycastParams?
+}
+
 local function GetPartsByMode(
 	Reference: BasePart | CFrame | {Reference: BasePart, Offset: CFrame},
 	Params: OverlapParams?,
@@ -117,7 +128,7 @@ local function Summon(Args: HitboxArguments): { Humanoid }
 
 		if Args.Debug.PrintEstimatedProcessTime then
 			print(
-				String:FormatTime((os.clock() - StartTime) * Args.Debug.PrintEstimatedProcessTime)
+				String.FormatTime((os.clock() - StartTime) * Args.Debug.PrintEstimatedProcessTime)
 					.. " for "
 					.. Args.Debug.PrintEstimatedProcessTime
 					.. " Hitboxes"
@@ -153,6 +164,47 @@ function HitboxModule.Spawn(Args: HitboxArguments): { Humanoid }
 	else
 		return Summon(Args)
 	end
+end
+
+function HitboxModule.LingerSpherecast(Params: RaycastArguments)
+	local CurrentThread = coroutine.running()
+	local Size = Params.Size
+	
+	local Bind
+	local DebugPart
+
+	if Params.DebugEnabled then
+		DebugPart = Instance:CreateInstance("Part", {Parent = workspace, Shape = Enum.PartType.Ball})
+		
+		DebugPart.Size = Vector3.new(Size, Size, Size)
+		DebugPart.Anchored = false
+		DebugPart.CanCollide = false
+		DebugPart.Transparency = 0.6
+	end
+	
+	Bind = Services.RNS:BindToSimulation(function()
+		local Origin = Params.Part.Position
+		local Target = (Params.Part.CFrame * CFrame.new(Params.Offset)).Position
+		local RayVector = (Target - Origin)
+		local Result: RaycastResult = workspace:Spherecast(Origin, Size, RayVector, Params.RaycastParams)
+		
+		if DebugPart then
+			DebugPart.Position = Target
+		end
+
+		local Humanoid = if Result then Instance.FindHumanoidFromPart(Result.Instance) else nil
+		if Result and Humanoid then
+			Bind:Disconnect()
+			coroutine.resume(CurrentThread, Humanoid, Result)
+		end
+		
+	end, Enum.StepFrequency.Hz30)
+	
+	task.delay(Params.Duration, function()
+		Bind:Disconnect()
+	end)
+
+	return coroutine.yield()
 end
 
 return HitboxModule

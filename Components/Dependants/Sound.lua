@@ -1,42 +1,98 @@
---!strict
-local SoundModule = {}
-local SoundClass : SoundClass = {}
-SoundClass.__index = SoundClass
+local AudioControl = {}
+local Instance = require("../Standalone/BaseTypes/Instance")
 
-local Emitter = require("../Standalone/Emitter")
+local Output: AudioDeviceOutput
+AudioControl.Output = nil :: any & AudioDeviceOutput
 
-local GlobalEmitter = Emitter.newMulti()
-SoundModule.GlobalEmitter = GlobalEmitter
+local Random = Random.new()
 
-export type SoundObject = typeof(
-	setmetatable({} :: SoundProperties,
-	{} :: SoundClass
-))
-export type SoundClass = {
-	__index : SoundClass,
+function AudioControl.Init(): AudioDeviceOutput
+	if Output and Output.Parent ~= nil then
+		return Output
+	end
 	
-	GetFatigueVolume : (self : SoundObject) -> number,
-	Play : (self : SoundObject) -> ()
-}
-export type SoundProperties = {
-	SoundInstance : AudioPlayer,
-	Volume : number,
-	BasePart : BasePart
-}
-
-function SoundModule.new(Sound : SoundProperties) : SoundObject
-	local self = setmetatable(Sound, SoundClass)
-	self.SoundInstance.AutoLoad = true
-	return self
+	local Listener = Instance:CreateInstance("AudioListener", {Parent = workspace.CurrentCamera})
+	local CreatedOutput: AudioDeviceOutput = Instance:CreateInstance("AudioDeviceOutput", {Parent = workspace.CurrentCamera})
+	Output = CreatedOutput
+	
+	Instance:CreateInstance("Wire", {
+		Parent = Output,
+		SourceInstance = Listener,
+		TargetInstance = Output
+	})
+	
+	AudioControl.Output = Output
+	
+	return CreatedOutput
 end
 
-function SoundClass:Play()
-	GlobalEmitter:Fire("SoundPlayed", self)
-	self.SoundInstance:Play()
+function AudioControl.Play(
+		Source: AudioPlayer,
+		Target: AudioEmitter | AudioDeviceOutput?,
+		Settings: {
+			Effects: {Instance}?,
+			Clone: boolean?,
+			Fatigue: boolean?
+		}?
+	)
+	local GivenSettings = Settings or {}
+
+	Source.PlaybackSpeed = 1
+
+	if not Target then
+		Target = Output or AudioControl.Init() :: AudioDeviceOutput
+	end
+	
+	if GivenSettings.Clone then
+		local RSource = Source
+		Source = Source:Clone()
+		Source.Parent = RSource
+		Source.Name = Source.Name.."_Clone"
+		
+		Source.Ended:Once(function()
+			Source:Destroy()
+		end)
+	end
+	
+	for _, v in pairs(Source:GetChildren()) do
+		if v:IsA("Wire") then
+			v:Destroy()
+		end
+	end
+	
+	local LastSource = Source
+	
+	if GivenSettings.Effects then
+		for _, v in ipairs(GivenSettings.Effects) do
+			AudioControl.Connect(LastSource, v, Source)
+			LastSource = v
+		end
+	end
+	
+	AudioControl.Connect(LastSource, Target, Source)
+
+	if GivenSettings.Fatigue then
+		Source.PlaybackSpeed *= Random:NextNumber(0.95, 1.05)
+		
+		Source.Ended:Once(function()
+			Source.PlaybackSpeed = 1
+		end)
+	end
+
+	Source.TimePosition = 0
+	Source:Play()
 end
 
-function SoundClass:GetFatigueVolume()
-	return math.random(self.SoundInstance.PlaybackSpeed * 0.95, self.SoundInstance.PlaybackSpeed * 1.05)
+function AudioControl.Connect(Source: Instance, Target: AudioEmitter | AudioDeviceOutput?, Parent: Instance?)
+	Instance:CreateInstance("Wire", {
+		Parent = Parent or Source,
+		SourceInstance = Source,
+		TargetInstance = Target
+	})
 end
 
-return SoundModule
+function AudioControl.GetAudioEmitter(Model: Model): AudioEmitter
+	return Model:FindFirstChildOfClass("AudioEmitter") or Instance:CreateInstance("AudioEmitter", {Parent = Model})
+end
+
+return AudioControl

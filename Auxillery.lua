@@ -17,6 +17,7 @@ return table.freeze({
 	Emitter = Emitter,
 	Math = require(Standalone.Math),
 	Input = require(Standalone.Input),
+	UI = require(Standalone.UI),
 
 	Sound = require(Dependants.Sound),
 	CustomSignals = require(Dependants.HeartbeatSignals),

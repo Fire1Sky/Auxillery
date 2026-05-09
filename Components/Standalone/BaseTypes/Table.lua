@@ -3,10 +3,11 @@ local TableModule = {}
 
 local Number = require("./Number")
 local Services = require("../Services")
+local Constants = require("../../Constants")
 
 --Returns a string descriping if the given Table is a Array or a Dictionary.
-function TableModule:GetTableType(Table : {}) : "Array" | "Dictionary"
-	assert(typeof(Table) == "table", tostring(Table).." isn't a table.")
+function TableModule.GetTableType(Table : {}) : "Array" | "Dictionary"
+	assert(typeof(Table) == "table", Constants.INVALID_TYPE:format("table", typeof(Table)))
 	local Count = 0
 
 	for _, _ in Table do
@@ -16,11 +17,11 @@ function TableModule:GetTableType(Table : {}) : "Array" | "Dictionary"
 	return if #Table == Count then "Array" else "Dictionary"
 end
 
-function TableModule:CombineTables(...)
+function TableModule.CombineTables(...)
 	local Result = {}
 
 	for _, Table in pairs({...}) do
-		local TableType = TableModule:GetTableType(Table)
+		local TableType = TableModule.GetTableType(Table)
 
 		if TableType == "Array" then
 			for _, Value in pairs(Table) do
@@ -37,14 +38,14 @@ function TableModule:CombineTables(...)
 end
 
 --Used to correctly clone tables.
-function TableModule:DeepCopy<T>(val : any) : T
+function TableModule.DeepCopy<T>(val : any) : T
 	local copy : any = nil
 	if typeof(val) == "table" then
 		copy = {}
 		for n, v in pairs(val) do
-			copy[n] = TableModule:DeepCopy(v)
+			copy[n] = TableModule.DeepCopy(v)
 		end
-		setmetatable(copy, TableModule:DeepCopy(getmetatable(val)))
+		setmetatable(copy, TableModule.DeepCopy(getmetatable(val)))
 	else
 		copy = val
 	end
@@ -58,8 +59,8 @@ end
 	@key: the key that will be waited for.
 	@timeout: optional argument which stops yielding the code after runtime exceeds the timeout value.
 ]]
-function TableModule:Await(tab : {}, key : any, timeout : number?): any
-	assert(typeof(tab) == "table", tostring(tab).." isn't a table.")
+function TableModule.Await(tab : {}, key : any, timeout : number?): any
+	assert(typeof(tab) == "table", Constants.INVALID_TYPE:format("table", typeof(tab)))
 	assert(key, "key is nil.")
 
 	local runtime = 0
@@ -76,7 +77,7 @@ function TableModule:Await(tab : {}, key : any, timeout : number?): any
 		ldTConnection = Services.RNS.Heartbeat:Connect(UpdateldT)
 
 		repeat
-			if Number:NumberInRange(5, runtime, 0.1) and (not printed) then
+			if Number.NumberInRange(5, runtime, 0.1) and (not printed) then
 				printed = true
 				warn("Waiting time exceeded 5 seconds with table "..tostring(tab).." and key "..tostring(key))
 			end
@@ -90,8 +91,8 @@ function TableModule:Await(tab : {}, key : any, timeout : number?): any
 	return tab[key], runtime
 end
 
-function TableModule:Clear(Table : any, Settings : {ClearNested : boolean?, DisconnectConnections : boolean?, DestroyObjects : boolean?, Freeze : boolean?}?)
-	assert(typeof(Table) == "table", "Invalid table to clear.")
+function TableModule.Clear(Table : any, Settings : {ClearNested : boolean?, DisconnectConnections : boolean?, DestroyObjects : boolean?, Freeze : boolean?}?)
+	assert(typeof(Table) == "table", Constants.INVALID_TYPE:format("table", typeof(Table)))
 	
 	if typeof(Settings) ~= "table" then
 		table.clear(Table)
