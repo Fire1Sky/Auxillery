@@ -9,5 +9,6 @@
     "hide-files.files": [],
     "luau-lsp.sourcemap.rojoProjectFile": "Auxillery.project.json",
     "git.ignoreLimitWarning": true,
-    "stylua.targetReleaseVersion": "latest"
+    "stylua.targetReleaseVersion": "latest",
+    "stylua.disableVersionCheck": true
 }

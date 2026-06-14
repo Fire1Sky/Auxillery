@@ -3,13 +3,14 @@ local HitboxModule = {}
 
 local Instance = require("../Standalone/BaseTypes/Instance")
 local Services = require("../Standalone/Services")
-local String = require("../Standalone/BaseTypes/String")
 
 export type HitboxArguments = {
 	Origin: Model?,
-	
-	Reference: BasePart | CFrame | {Reference: BasePart, Offset: CFrame},
-	Size: Vector3?,
+	Prediction: Player?,
+
+	Shape: string?,
+	Reference: BasePart | CFrame,
+	Size: any,
 
 	OnHumanoidHit: (Humanoid: Humanoid) -> ()?,
 	AdditionalCheck: ((Humanoid: Humanoid) -> boolean)?,
@@ -19,13 +20,13 @@ export type HitboxArguments = {
 	Debug: {
 		ShowHitbox: boolean?,
 		PrintProcessingTime: boolean?,
-		PrintEstimatedProcessTime: number?,
 	}?,
 
 	Stats: {
 		Linger: {
 			Duration: number,
-			Interval: number
+			Interval: number,
+			IgnoreParts: boolean?,
 		}?,
 		SelfHit: boolean?,
 	},
@@ -39,53 +40,71 @@ export type RaycastArguments = {
 	Offset: Vector3,
 	DebugEnabled: boolean?,
 
-	RaycastParams: RaycastParams?
+	Prediction: Player?,
+
+	RaycastParams: RaycastParams?,
 }
 
-local function GetPartsByMode(
-	Reference: BasePart | CFrame | {Reference: BasePart, Offset: CFrame},
-	Params: OverlapParams?,
-	Size: Vector3?
-): ({ BasePart }, CFrame)
-	if typeof(Reference) == "Instance" then
-		return workspace:GetPartBoundsInBox(Reference.CFrame, Size, Params), Reference.CFrame
-	elseif typeof(Reference) == "CFrame" then
-		return workspace:GetPartBoundsInBox(Reference, Size, Params), Reference
-	else
-		return workspace:GetPartBoundsInBox(Reference.Reference.CFrame * Reference.Offset, Size, Params), Reference.Reference.CFrame * Reference.Offset
-	end
-end
+local Shapes: { [string]: (Args: HitboxArguments) -> ({ BasePart }, CFrame) } = {
+	Box = function(Args)
+		local OriginCFrame = if typeof(Args.Reference) == "Instance"
+			then Args.Reference.CFrame
+			else Args.Reference :: CFrame
 
-local function Summon(Args: HitboxArguments): { Humanoid }
-	local StartTime = os.clock()
+		if Args.Prediction and typeof(Args.Reference) == "Instance" then
+			OriginCFrame *= CFrame.new(
+				Args.Reference.AssemblyLinearVelocity * math.clamp(Args.Prediction:GetNetworkPing(), 0, 0.2)
+			)
+		end
 
-	local Parts, CF = GetPartsByMode(Args.Reference, Args.OverlapParams, Args.Size)
+		return workspace:GetPartBoundsInBox(OriginCFrame, Args.Size, Args.OverlapParams), OriginCFrame
+	end,
+
+	Sphere = function(Args)
+		local OriginCFrame = if typeof(Args.Reference) == "Instance"
+			then Args.Reference.CFrame
+			else Args.Reference :: CFrame
+
+		if Args.Prediction and typeof(Args.Reference) == "Instance" then
+			OriginCFrame *= CFrame.new(
+				Args.Reference.AssemblyLinearVelocity * math.clamp(Args.Prediction:GetNetworkPing(), 0, 0.2)
+			)
+		end
+
+		return workspace:GetPartBoundsInRadius(OriginCFrame.Position, Args.Size, Args.OverlapParams), OriginCFrame
+	end,
+}
+local ShapeToPartType = {
+	Box = Enum.PartType.Block,
+	Sphere = Enum.PartType.Ball,
+}
+
+function GetSpatialQueryResults(Args: HitboxArguments): ({ Humanoid }, { BasePart })
 	local Callback = Args.OnHumanoidHit
-
 	local HumanoidsHit = {}
 
+	local StartTime = os.clock()
+	local ShapeMethod = Shapes[Args.Shape or "Box"]
+
+	local Parts, OriginCFrame = ShapeMethod(Args)
+
 	for _, Part in pairs(Parts) do
-		if not Part.Parent then
+		local ModelAnchestor = Part:FindFirstAncestorOfClass("Model")
+
+		if not ModelAnchestor then
 			continue
 		end
 
-		if Part.Parent:FindFirstChild("_CustomHitbox") then
-			if Part.Name ~= "_CustomHitbox" then
-				continue
-			end
-		else
-			if Part.Name ~= "HumanoidRootPart" then
-				continue
-			end
-		end
+		local TargetHitbox = ModelAnchestor:FindFirstChild("_CustomHitbox") or ModelAnchestor.PrimaryPart
 
-		if not Part.Parent or Part.Name ~= "HumanoidRootPart" then
+		if not TargetHitbox or TargetHitbox.Name ~= Part.Name then
 			continue
 		end
-		local Humanoid = Part.Parent:FindFirstChildOfClass("Humanoid")
+
+		local Humanoid = ModelAnchestor:FindFirstChildOfClass("Humanoid")
 
 		if Humanoid and not table.find(HumanoidsHit, Humanoid) then
-			if (not Args.Stats.SelfHit) and Humanoid.Parent == Args.Origin then
+			if (not Args.Stats.SelfHit) and ModelAnchestor == Args.Origin then
 				continue
 			end
 
@@ -106,17 +125,24 @@ local function Summon(Args: HitboxArguments): { Humanoid }
 	end
 
 	if Args.Debug then
+		local TranslatedSize = Args.Size
+
+		if typeof(Args.Size) == "number" then
+			TranslatedSize = Vector3.one * Args.Size
+		end
+
 		if Args.Debug.ShowHitbox then
 			Services.D:AddItem(
 				Instance:CreateInstance("Part", {
 					Parent = workspace,
-					CFrame = CF,
-					Size = Args.Size,
-					Transparency = 0.5,
+					CFrame = OriginCFrame,
+					Size = TranslatedSize,
+					Transparency = 0.8,
 					Color = Color3.fromRGB(255, 0, 0),
 					Material = Enum.Material.SmoothPlastic,
 					CanCollide = false,
 					Anchored = true,
+					Shape = ShapeToPartType[Args.Shape or "Box"],
 				}),
 				0.1
 			)
@@ -125,23 +151,17 @@ local function Summon(Args: HitboxArguments): { Humanoid }
 		if Args.Debug.PrintProcessingTime then
 			print(os.clock() - StartTime .. " Hitbox processing time.")
 		end
-
-		if Args.Debug.PrintEstimatedProcessTime then
-			print(
-				String.FormatTime((os.clock() - StartTime) * Args.Debug.PrintEstimatedProcessTime)
-					.. " for "
-					.. Args.Debug.PrintEstimatedProcessTime
-					.. " Hitboxes"
-			)
-		end
 	end
 
-	return HumanoidsHit
+	return HumanoidsHit, Parts
 end
 
-function HitboxModule.Spawn(Args: HitboxArguments): { Humanoid }
+function HitboxModule.Spawn(Args: HitboxArguments): ({ Humanoid }, { BasePart })
 	assert(typeof(Args) == "table", "No Arguments given")
-	assert(typeof(Args.Reference) == "Instance" or typeof(Args.Reference) == "table" or typeof(Args.Reference) == "CFrame", "Invalid Reference")
+	assert(
+		typeof(Args.Reference) == "Instance" or typeof(Args.Reference) == "table" or typeof(Args.Reference) == "CFrame",
+		"Invalid Reference"
+	)
 	assert(Args.Stats, "Invalid Stats")
 
 	if Args.Stats.Linger then
@@ -153,41 +173,146 @@ function HitboxModule.Spawn(Args: HitboxArguments): { Humanoid }
 		while (os.clock() - StartingTime) < Args.Stats.Linger.Duration do
 			task.wait(Args.Stats.Linger.Interval)
 
-			local Hits = Summon(Args)
+			local Hits, BaseParts = GetSpatialQueryResults(Args)
+			local Count = #Hits
 
-			if #Hits ~= 0 then
-				return Hits
+			if not Args.Stats.Linger.IgnoreParts then
+				Count += #BaseParts
+			end
+
+			if Count ~= 0 then
+				return Hits, BaseParts
 			end
 		end
 
-		return {}
+		return {}, {}
 	else
-		return Summon(Args)
+		return GetSpatialQueryResults(Args)
 	end
 end
 
 function HitboxModule.LingerSpherecast(Params: RaycastArguments)
 	local CurrentThread = coroutine.running()
 	local Size = Params.Size
-	
+
+	assert(typeof(Size) == "number", "Size must be a number")
+
 	local Bind
 	local DebugPart
 
 	if Params.DebugEnabled then
-		DebugPart = Instance:CreateInstance("Part", {Parent = workspace, Shape = Enum.PartType.Ball})
-		
-		DebugPart.Size = Vector3.new(Size, Size, Size)
-		DebugPart.Anchored = false
-		DebugPart.CanCollide = false
-		DebugPart.Transparency = 0.6
+		DebugPart = Instance:CreateInstance("Part", {
+			Parent = workspace,
+			Shape = Enum.PartType.Ball,
+			CanCollide = false,
+			Transparency = 0.8,
+			Anchored = true,
+			Size = Vector3.one * Size
+		})
 	end
-	
+
+	local LastCF = Params.Part.CFrame
+
+	Bind = Services.RNS:BindToSimulation(function(DeltaTime)
+		local Part = Params.Part
+		local CF = Part.CFrame
+
+		local Velocity = Part.AssemblyLinearVelocity
+		local AngularVelocity = Part.AssemblyAngularVelocity
+
+		local Ping = 0
+
+		if Params.Prediction then
+			Ping = math.clamp(
+				Params.Prediction:GetNetworkPing() * 0.5,
+				0,
+				0.15
+			)
+		end
+
+		local PredictedCF =
+			CF
+			+ (Velocity * Ping)
+
+		if AngularVelocity.Magnitude > 0.001 then
+			local Axis = AngularVelocity.Unit
+			local Angle = AngularVelocity.Magnitude * Ping
+
+			PredictedCF *= CFrame.fromAxisAngle(Axis, Angle)
+		end
+
+		local Origin = PredictedCF.Position
+		local Target = (PredictedCF * CFrame.new(Params.Offset)).Position
+
+		local MovementDelta = CF.Position - LastCF.Position
+		LastCF = CF
+
+		local RayVector =
+			(Target - Origin)
+			+ MovementDelta
+
+		local Result = workspace:Spherecast(
+			Origin,
+			Size,
+			RayVector,
+			Params.RaycastParams
+		)
+
+		if DebugPart then
+			DebugPart.Position = Target
+		end
+
+		local Humanoid =
+			if Result
+			then Instance.FindHumanoidFromPart(Result.Instance)
+			else nil
+
+		if Result and Humanoid then
+			Bind:Disconnect()
+			coroutine.resume(CurrentThread, Humanoid, Result)
+		end
+	end, Enum.StepFrequency.Hz60)
+
+	task.delay(Params.Duration, function()
+		if Bind then
+			Bind:Disconnect()
+		end
+
+		if DebugPart then
+			DebugPart:Destroy()
+		end
+	end)
+
+	return coroutine.yield()
+end
+
+function HitboxModule.LingerRaycast(Params: RaycastArguments)
+	local CurrentThread = coroutine.running()
+
+	local Bind
+	local DebugPart
+
+	if Params.DebugEnabled then
+		DebugPart = Instance:CreateInstance("Part", {
+			Parent = workspace,
+			Size = Vector3.new(0.2, 0.2, 0.2),
+			Anchored = false,
+			CanCollide = false,
+			Transparency = 0.8
+		})
+	end
+
 	Bind = Services.RNS:BindToSimulation(function()
 		local Origin = Params.Part.Position
+
+		if Params.Prediction then
+			Origin += Params.Part.AssemblyLinearVelocity * math.clamp(Params.Prediction:GetNetworkPing() * 1.05, 0, 0.2)
+		end
+
 		local Target = (Params.Part.CFrame * CFrame.new(Params.Offset)).Position
-		local RayVector = (Target - Origin)
-		local Result: RaycastResult = workspace:Spherecast(Origin, Size, RayVector, Params.RaycastParams)
-		
+		local RayVector = (Target - Origin).Unit * (Params.Size or (Target - Origin).Magnitude)
+		local Result: RaycastResult = workspace:Raycast(Origin, RayVector, Params.RaycastParams)
+
 		if DebugPart then
 			DebugPart.Position = Target
 		end
@@ -197,9 +322,8 @@ function HitboxModule.LingerSpherecast(Params: RaycastArguments)
 			Bind:Disconnect()
 			coroutine.resume(CurrentThread, Humanoid, Result)
 		end
-		
-	end, Enum.StepFrequency.Hz30)
-	
+	end, Enum.StepFrequency.Hz60)
+
 	task.delay(Params.Duration, function()
 		Bind:Disconnect()
 	end)

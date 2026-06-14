@@ -17,7 +17,8 @@ local Services = {
 	PHY = game:GetService("PhysicsService"),
 	D = game:GetService("Debris"),
 	MES = game:GetService("MessagingService"),
-	COP = game:GetService("ContentProvider")
+	COP = game:GetService("ContentProvider"),
+	LS = game:GetService("LogService")
 }
 
 return Services
